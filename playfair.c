@@ -13,16 +13,33 @@
 #include<stdlib.h>
 
 struct texto_t{
-    unsigned int tamanho;           //número de caracteres do texto
+    unsigned int tamanho;           //número de caracteres do texto sem espaços
     unsigned int num_pares;         //quantidade de parzinhos formados
     char *texto_base;               //texto base com espaços e letras de separação/complemento (x)
 };
 
 struct playfair_t {
-    unsigned int matriz[5][5];      //matriz que será preenchida
+    char matriz[5][5];              //matriz que será preenchida
     char *chave;                    //chave que preenche a matriz (não repete letras)
     char *chave_recebida;           //registro da chave passada pelo usuário
 };
+
+void inicializa_texto(struct texto_t *texto)
+{
+    texto->tamanho = 0;
+    texto->num_pares = 0;
+    texto->texto_base = NULL;
+}
+
+void inicializa_playfair(struct playfair_t *playfair)
+{
+    for (int i = 0; i < 5; i++)
+        for (int j = 0; j < 5; j++)
+            playfair->matriz[i][j] = 0;
+    
+    playfair->chave = NULL;                 //alocar memória depois que tiver a chave
+    playfair->chave_recebida = NULL;        //alocar memória depois que tiver a chave
+}
 
 void trata_texto(char *arquivo, struct texto_t *texto)
 {
@@ -30,7 +47,7 @@ void trata_texto(char *arquivo, struct texto_t *texto)
     //Conta a quantidade de carateres do arquivo
 
     FILE *arquivo_original;
-    char linha[256];
+    char letra;
 
     arquivo_original = fopen(arquivo, "r");
     if (!arquivo_original) 
@@ -39,10 +56,14 @@ void trata_texto(char *arquivo, struct texto_t *texto)
     rewind(arquivo_original);
 
     //Remove os espaços
-    while (fgets((linha), sizeof(linha), arquivo_original))
+    int i = 0;
+    while (letra = fgetc(arquivo_original) != EOF)
     {
-        if (linha[i] != ' ')
-            texto->texto_base[i] = 
+        if (letra != " ")
+        {
+            texto->texto_base = letra;
+            texto->tamanho++;
+        }
     }
 }
 
