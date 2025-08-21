@@ -16,6 +16,7 @@ struct texto_t{
     unsigned int tamanho;           //número de caracteres do texto com espaços
     unsigned int num_pares;         //quantidade de parzinhos formados
     char *texto_base;               //texto base com espaços e letras de separação/complemento (x)
+    char *pares_originais;          //pares de indexação para codificar o texto
 };
 
 struct playfair_t {
@@ -76,29 +77,44 @@ void trata_texto(char *arquivo, struct texto_t *texto)
         i++;                                        //avança para o próximo campo do vetor
     }
 
-    printf("Tamanho do texto sem espaços: %d\n", texto->tamanho);
+    fclose(arquivo_original);
+    printf("Número de caracteres com espaços: %d\n", texto->tamanho);
 }
 
-void forma_pares(struct texto_t texto)
+void forma_pares(struct texto_t *texto)
 {
-    //Forma os pares
+    //Forma os pares partindo do texto base
     //Se uma letra repetir, coloca um 'x' no meio
-    //Se uma letra ficar sozinha, coloca um X como par 
+    //Se uma letra ficar sozinha, coloca um X como par
+    
+    //Calcula a quantidade de pares que serão necessários
+    texto->num_pares = (texto->tamanho / 2);
+    
 }
 
-void le_chave(struct playfair_t playfair)
+void le_chave(struct playfair_t *playfair)
 {
-    //Lê a chave do teclado e opera para que não repita letras 
+    //Opera a chave recebida do teclado para que não repita letras 
 }
 
-void cifra(struct texto_t texto, struct playfair_t playfair)
+void monta_matriz(struct playfair_t *playfair)
+{
+    //Monta a matriz que será usada na codificação
+}
+
+void cifra(struct texto_t *texto, struct playfair_t *playfair)
 {
     //Cifra o texto com base nas regras da playfair
 }
 
-void decifra(struct playfair_t playfair)
+void decifra(struct playfair_t *playfair)
 {
     //Decifra o texto usando as regras da playfair
+}
+
+void libera_texto(struct texto_t *texto)
+{
+    free(texto->texto_base);
 }
 
 int main()
@@ -148,7 +164,10 @@ int main()
     //Trata o texto
     trata_texto(arquivo, texto);
 
-    //Desacolações
+    //Liberações de memória
+    free(arquivo);
+    free(chave);
+    libera_texto(texto);
     free(texto);
     free(playfair);
 }
