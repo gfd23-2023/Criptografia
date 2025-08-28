@@ -23,7 +23,19 @@ struct playfair_t {
     char matriz[5][5];              //matriz que será preenchida
     char *chave;                    //chave que preenche a matriz (não repete letras)
     char *chave_recebida;           //registro da chave passada pelo usuário
+    unsigned int tamanho_chave;     //tamanho da chave para facilitar as contas
 };
+
+struct alfabeto_t {
+    char letras[25];                //contém todas as letras do alfabeto para facilitar a vida (0 ~ 25)
+};
+
+void inicializa_alfabeto(struct alfabeto_t *alfabeto)
+{
+    //Coloca todas as letras do alfabeto em um vetor
+    for (int i = 65, j = 0; j < 26; j++, i++)
+        alfabeto->letras[j] = i; 
+}
 
 void inicializa_texto(struct texto_t *texto)
 {
@@ -89,17 +101,50 @@ void forma_pares(struct texto_t *texto)
     
     //Calcula a quantidade de pares que serão necessários
     texto->num_pares = (texto->tamanho / 2);
-    
+
+    if (texto->tamanho % 2)
+        texto->num_pares++;
+
 }
 
-void le_chave(struct playfair_t *playfair)
+void le_chave(struct playfair_t *playfair, struct alfabeto_t *alfabeto)
 {
-    //Opera a chave recebida do teclado para que não repita letras 
+    //Opera a chave recebida do teclado para que não repita letras
+
+    scanf("Digite sua chave: %s", playfair->chave_recebida);
+
+    playfair->tamanho_chave = strlen(playfair->chave);
+    //Remove caracteres repetidos
+    for (int i = 0; i < 25; i++)
+    {
+        if (playfair->chave_recebida[i] != '\0')
+        {
+            
+        }
+    }
 }
 
-void monta_matriz(struct playfair_t *playfair)
+void monta_matriz(struct playfair_t *playfair, struct alfabeto_t *alfabeto)
 {
     //Monta a matriz que será usada na codificação
+    char letra;
+
+    char i = 0;
+    char j = 0;
+    char k = playfair->tamanho_chave;
+
+    //Coloca a chave processada na matriz
+    while ((playfair->chave[k] != '\0') && (i < 5) && (k < playfair->tamanho_chave))
+    {
+        while (j < 5)
+        {
+            playfair->matriz[i][j] = playfair->chave[k];
+            j++;
+        }
+
+        i++;
+        k++;
+    }
 }
 
 void cifra(struct texto_t *texto, struct playfair_t *playfair)
@@ -123,6 +168,7 @@ int main()
     char *arquivo;
     struct texto_t *texto;
     struct playfair_t *playfair;
+    struct alfabeto_t *alfabeto;
 
     //Inicializações -----------------------------------------------------
     texto = malloc(sizeof(struct texto_t));
@@ -153,6 +199,7 @@ int main()
 
     inicializa_texto(texto);
     inicializa_playfair(playfair);
+    inicializa_alfabeto(alfabeto);
     //--------------------------------------------------------------------
 
     printf("Este código cifra um texto utilizando a Cifra Playfair.\n");
