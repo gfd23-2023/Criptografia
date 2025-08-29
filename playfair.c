@@ -27,14 +27,21 @@ struct playfair_t {
 };
 
 struct alfabeto_t {
-    char letras[25];                //contém todas as letras do alfabeto para facilitar a vida (0 ~ 25)
+    char maiusculas[25];                //contém todas as letras do alfabeto para facilitar a vida (0 ~ 25)
+    char minusculas[25];
 };
 
 void inicializa_alfabeto(struct alfabeto_t *alfabeto)
 {
     //Coloca todas as letras do alfabeto em um vetor
-    for (int i = 65, j = 0; j < 26; j++, i++)
-        alfabeto->letras[j] = i; 
+
+    //Maiúsculas
+    for (int i = 65, j = 0; j < 25; j++, i++)
+        alfabeto->maiusculas[j] = i;
+
+    //Minúsculas
+    for (int i = 97, j = 0; j < 25; j++, i++)
+        alfabeto->minusculas[j] = i;
 }
 
 void inicializa_texto(struct texto_t *texto)
@@ -107,21 +114,51 @@ void forma_pares(struct texto_t *texto)
 
 }
 
-void le_chave(struct playfair_t *playfair, struct alfabeto_t *alfabeto)
+void le_chave(struct playfair_t *playfair, struct alfabeto_t *alfabeto, char *chave)
 {
     //Opera a chave recebida do teclado para que não repita letras
 
-    scanf("Digite sua chave: %s", playfair->chave_recebida);
+    playfair->chave_recebida = chave;
+    playfair->tamanho_chave = strlen(chave);
 
-    playfair->tamanho_chave = strlen(playfair->chave);
-    //Remove caracteres repetidos
-    for (int i = 0; i < 25; i++)
+    playfair->chave = malloc(playfair->tamanho_chave * sizeof(char));
+    if (!playfair->chave)
     {
-        if (playfair->chave_recebida[i] != '\0')
-        {
-            
-        }
+        printf("Não foi possível alocar memória para a chave.\n");
+        return;
     }
+
+    char igual = 0;
+    char atual;
+    
+    //Remove letras repetidas da chave
+    playfair->chave[0] = playfair->chave_recebida[0];
+    playfair->chave[1] = '\0';
+    printf("Tamanho playfair->chave = %ld\n", strlen(playfair->chave));
+    int i = 0;
+    while (playfair->chave_recebida[i] != '\0')
+    {
+        atual = playfair->chave_recebida[i];
+
+        for (int j = 0; j < strlen(playfair->chave); j++)
+        {
+            if (playfair->chave[j] == atual)
+                igual = 1;
+        }
+
+        if (!igual)
+            playfair->chave[strlen(playfair->chave)] = playfair->chave_recebida[i];
+        
+        playfair->chave[strlen(playfair->chave) + 1] = '\0';
+
+        igual = 0;          //Reseta o estado do controlador
+        i++;                //avança para a próxima letra
+    }
+
+    printf("Tamanho da chave sem repetir: %ld\n", strlen(playfair->chave));
+    for (int i = 0; i < strlen(playfair->chave); i++)
+        printf("%c", playfair->chave[i]);
+    printf("\n");
 }
 
 void monta_matriz(struct playfair_t *playfair, struct alfabeto_t *alfabeto)
@@ -197,6 +234,13 @@ int main()
         return(-1);
     }
 
+    alfabeto = malloc(sizeof(struct alfabeto_t));
+    if (!alfabeto)
+    {
+        printf("Erro ao alocar memória para o alfabeto.\n");
+        return (-1);
+    }
+
     inicializa_texto(texto);
     inicializa_playfair(playfair);
     inicializa_alfabeto(alfabeto);
@@ -208,10 +252,14 @@ int main()
     printf("Digite sua chave: ");
     scanf("%255s", chave);
 
+    //Trata a chave
+    le_chave(playfair, alfabeto, chave);
+
     //Trata o texto
     trata_texto(arquivo, texto);
 
     //Liberações de memória
+    free(alfabeto);
     free(arquivo);
     free(chave);
     libera_texto(texto);
