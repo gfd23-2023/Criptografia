@@ -199,6 +199,12 @@ void libera_texto(struct texto_t *texto)
     free(texto->texto_base);
 }
 
+void libera_playfair(struct playfair_t *playfair)
+{
+    free(playfair->chave);
+    free(playfair);
+}
+
 int main()
 {
     char *chave;
@@ -264,5 +270,5 @@ int main()
     free(chave);
     libera_texto(texto);
     free(texto);
-    free(playfair);
+    libera_playfair(playfair);
 }
