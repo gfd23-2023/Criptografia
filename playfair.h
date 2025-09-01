@@ -22,6 +22,9 @@ struct alfabeto_t {
     char minusculas[25];
 };
 
+#define TAM_ALFABETO 26
+#define NUM_COLUNAS 5
+#define NUM_LINHAS 5
 
 void inicializa_alfabeto(struct alfabeto_t *alfabeto);
 

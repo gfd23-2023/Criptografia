@@ -18,5 +18,5 @@ debug: CFLAGS += -O0 -DDEBUG
 debug clean: $(MAIN)
 
 clean:
-	rm -f *.o*~ $(MAIN)
+	rm -f *.o *~ $(MAIN)
 	find . -name "*.sw*" -delete

@@ -20,9 +20,14 @@ void inicializa_alfabeto(struct alfabeto_t *alfabeto)
     //Coloca todas as letras do alfabeto em um vetor
 
     //Maiúsculas
-    for (int i = 65, j = 0; j < 25; j++, i++)
-        alfabeto->maiusculas[j] = i;
-
+    int idx = 0;
+    for (char c = 'A'; c <= 'Z'; c++)
+    {
+        if (c == 'J')
+            continue;       //trata o J como I
+        
+        alfabeto->maiusculas[idx++] = c;
+    }
     //Minúsculas
     for (int i = 97, j = 0; j < 25; j++, i++)
         alfabeto->minusculas[j] = i;
@@ -109,7 +114,7 @@ void le_chave(struct playfair_t *playfair, struct alfabeto_t *alfabeto, char *ch
     for (int i = 0; i < playfair->tamanho_chave; i++)
         playfair->chave_recebida[i] = toupper(chave[i]);
 
-    playfair->chave = malloc(playfair->tamanho_chave * sizeof(char));
+    playfair->chave = malloc(26 * sizeof(char));
     if (!playfair->chave)
     {
         printf("Não foi possível alocar memória para a chave.\n");
@@ -151,20 +156,6 @@ void le_chave(struct playfair_t *playfair, struct alfabeto_t *alfabeto, char *ch
     #endif
 }
 
-//Remove do alfabeto as letras da chave
-void limpa_alfabeto(struct alfabeto_t *alfabeto, struct playfair_t *playfair)
-{
-    for (int i = 0; i < 25; i++)
-    {
-        for (int j = 0; j < strlen(playfair->chave); j++)
-        {
-            if (playfair->chave[j] == alfabeto->maiusculas[i])
-            {
-                //calma acho que não vai precisar
-            }
-        }
-    }
-}
 
 void monta_matriz(struct playfair_t *playfair, struct alfabeto_t *alfabeto)
 {
@@ -173,49 +164,54 @@ void monta_matriz(struct playfair_t *playfair, struct alfabeto_t *alfabeto)
     char i = 0;     //linha
     char j = 0;     //coluna
     char igual = 0;
-    char k = playfair->tamanho_chave;
+    char k = 0;
+    long int letra = 1;
+    char usados[26] = {0};
 
     //Coloca a chave processada na matriz
-    while ((playfair->chave[k] != '\0') && (i < 5) && (k < playfair->tamanho_chave))
-    {
-        while (j < 5)
-        {
-            playfair->matriz[i][j] = playfair->chave[k];
-            printf("letra = %d ", playfair->matriz[i][j]);
+    for (int k = 0; playfair->chave[k] != '\0'; k++) {
+        char c = playfair->chave[k];
+        if (c == 'J') c = 'I'; // trata J como I
+
+        int idx = c - 'A';
+        if (!usados[idx]) {
+            playfair->matriz[i][j] = c;
+            usados[idx] = 1;
+
             j++;
-        }
-
-        i++;
-        k++;
-    }
-
-    printf("\n");
-    printf("i = %d j = %d\n", i, j);
-
-    //Depois que colocou a chave, coloca o restante do alfabeto
-    int aux = 0;
-    for (int linha = i; linha < 5; linha++)
-    {
-        for (int coluna = j; coluna < 5; coluna++)
-        {
-            for (int letra = 0; letra < 25; letra++)
-            {
-                if (aux >= strlen(playfair->chave))
-                {
-                    printf("aux é maior do que o tamanho da chave.\n");
-                    break;
-                }
-
-                if (playfair->chave[aux] == alfabeto->maiusculas[letra])
-                    igual = 1;
-
-                if (!igual)
-                    playfair->matriz[i][j] = alfabeto->maiusculas[letra];
-                
-                aux++;      //pega a próxima letra da chave
+            if (j == NUM_COLUNAS) {
+                j = 0;
+                i++;
             }
         }
     }
+
+    if (j == NUM_COLUNAS)
+        j = 0;
+
+    //Depois que colocou a chave, coloca o restante do alfabeto
+    int aux = 0;
+    for (char c = 'A'; c <= 'Z'; c++)
+    {
+        if (c == 'J')
+            continue;       //trata os dois como a mesma letra
+
+        int indice = c - 'A';
+
+        if (!usados[indice])
+        {
+            playfair->matriz[i][j] = c;
+            usados[indice] = 1;
+
+            j++;
+            if (j == NUM_COLUNAS)
+            {
+                j = 0;          //reseta a coluna
+                i++;            //avança para a próxima linha
+            }
+        }
+    }
+
 
     #ifdef DEBUG
     //Imprime a matriz
@@ -223,12 +219,13 @@ void monta_matriz(struct playfair_t *playfair, struct alfabeto_t *alfabeto)
     {
         for (int b = 0; b < 5; b++)
         {
-            printf("%c ", playfair->matriz[a][b]);
+            printf("%c", playfair->matriz[a][b]);
         }
 
         printf("\n");
     }
     #endif
+
 }
 
 void cifra(struct texto_t *texto, struct playfair_t *playfair)
