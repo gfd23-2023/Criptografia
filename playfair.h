@@ -14,6 +14,7 @@ struct playfair_t {
     char matriz[5][5];              //matriz que será preenchida
     char *chave;                    //chave que preenche a matriz (não repete letras)
     char *chave_recebida;           //registro da chave passada pelo usuário
+    char *texto_cifrado;            //sugestivo
     unsigned int tamanho_chave;     //tamanho da chave para facilitar as contas
 };
 

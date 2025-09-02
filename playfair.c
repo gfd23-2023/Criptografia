@@ -50,6 +50,12 @@ void inicializa_playfair(struct playfair_t *playfair)
     playfair->chave_recebida = NULL;        //alocar memória depois que tiver a chave
 }
 
+//Remove caracteres e símbolos especiais do texto
+void limpa_texto(struct texto_t *texto)
+{
+    
+}
+
 void trata_texto(char *arquivo, struct texto_t *texto)
 {
     //Remove os espaços
@@ -76,14 +82,21 @@ void trata_texto(char *arquivo, struct texto_t *texto)
     texto->texto_base = malloc(texto->tamanho * sizeof(char));
 
     //Remove os espaços
+    rewind(arquivo_original);
     i = 0;
+    int j = 0;
     while ((letra = fgetc(arquivo_original)) != EOF)
     {
-        if (letra != ' ')                           //se não for um espaço
-            texto->texto_base[i] = toupper(letra);  //guarda a letra
-        
+        if ((letra != ' ') && isalnum(letra))       //se não for um espaço nem um caractere especial
+        {
+            texto->texto_base[j] = toupper(letra);  //guarda a letra
+            j++;
+        }
         i++;                                        //avança para o próximo campo do vetor
     }
+
+    //A posição do último j é o EOF
+    texto->texto_base[j] = '\0';
 
     fclose(arquivo_original);
     printf("Número de caracteres com espaços: %d\n", texto->tamanho);
@@ -219,7 +232,7 @@ void monta_matriz(struct playfair_t *playfair, struct alfabeto_t *alfabeto)
     {
         for (int b = 0; b < 5; b++)
         {
-            printf("%c", playfair->matriz[a][b]);
+            printf("%c ", playfair->matriz[a][b]);
         }
 
         printf("\n");
@@ -228,9 +241,51 @@ void monta_matriz(struct playfair_t *playfair, struct alfabeto_t *alfabeto)
 
 }
 
+//Pega os pares de letras para fazer as correspondências
 void cifra(struct texto_t *texto, struct playfair_t *playfair)
 {
-    //Cifra o texto com base nas regras da playfair
+    #ifdef DEBUG
+    int j = 0; 
+    while (texto->texto_base[j] != '\0')
+    {
+        printf("%c", texto->texto_base[j]);
+        j++;
+    }
+    printf("\n");
+    #endif
+
+    texto->tamanho = strlen(texto->texto_base);
+    printf("texto->tamanho = %d\n", texto->tamanho);
+    //Confere se a quantidade de caracteres é par para formar os pares
+    if (texto->tamanho % 2)
+    {
+        printf("ENTREI AQUI\n");
+        texto->texto_base[texto->tamanho] = 'X';
+        texto->texto_base[texto->tamanho + 1] = '\0';
+        texto->tamanho++;
+        
+    }
+
+    //Inicializa o campo do texto cifrado
+    playfair->texto_cifrado = malloc(texto->tamanho * sizeof(char));
+
+    //Codifica
+    printf("tamanho texto atualizado: %d\n", texto->tamanho);
+    int teste = 0;
+    for (int i = 0; i < (texto->tamanho - 1); i++)
+    {
+        //PRECISA PROCURAR DIRETO NA MATRIZ - É POR ISSO QUE DÁ ERRO -------
+        playfair->texto_cifrado[i] = playfair->matriz[i][i + 1];        //linha i coluna i + 1
+        playfair->texto_cifrado[i + 1] = playfair->matriz[i + 1][i];    //linha i + 1 coluna i
+        teste = i;
+        //------------------------------------------------------------------
+    }
+
+    printf("\n\nTESTE + 1 = %d\n", teste + 1);
+    #ifdef DEBUG
+    for (int i = 0; i < texto->tamanho; i ++)
+        printf("%c", playfair->texto_cifrado[i]);
+    #endif
 }
 
 void decifra(struct playfair_t *playfair)
@@ -245,6 +300,7 @@ void libera_texto(struct texto_t *texto)
 
 void libera_playfair(struct playfair_t *playfair)
 {
+    free(playfair->texto_cifrado);
     free(playfair->chave);
     free(playfair);
 }

@@ -64,6 +64,7 @@ int main()
 
     //Monta a matriz
     monta_matriz(playfair, alfabeto);
+    cifra(texto, playfair);
 
     //Liberações de memória
     free(alfabeto);
