@@ -16,6 +16,8 @@ struct playfair_t {
     char *chave_recebida;           //registro da chave passada pelo usuário
     char *texto_cifrado;            //sugestivo
     unsigned int tamanho_chave;     //tamanho da chave para facilitar as contas
+    char linha;                     //linha alvo para codificação/decodifucação
+    char coluna;                    //coluna alvo para codificação/decodificação
 };
 
 struct alfabeto_t {

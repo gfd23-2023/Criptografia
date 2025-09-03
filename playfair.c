@@ -48,6 +48,8 @@ void inicializa_playfair(struct playfair_t *playfair)
     
     playfair->chave = NULL;                 //alocar memória depois que tiver a chave
     playfair->chave_recebida = NULL;        //alocar memória depois que tiver a chave
+    playfair->linha = 0;
+    playfair->coluna = 0;
 }
 
 //Remove caracteres e símbolos especiais do texto
@@ -241,19 +243,59 @@ void monta_matriz(struct playfair_t *playfair, struct alfabeto_t *alfabeto)
 
 }
 
+void procura_na_matriz(struct playfair_t *playfair, char letra)
+{
+   for (int i = 0; i < NUM_LINHAS; i++)
+   {
+        for (int j = 0; j < NUM_COLUNAS; j++)
+        {
+            if (playfair->matriz[i][j] == letra)
+            {
+                playfair->linha = i;
+                playfair->coluna = j;
+                return;
+            }
+        }
+    }
+}
+
+int verifica_linha(struct playfair_t *playfair, char letra1, char letra2)
+{
+    char linha1 = 0;
+    char coluna1 = 0;
+
+    procura_na_matriz(playfair, letra1);
+    linha1 = playfair->linha;
+    coluna1 = playfair->coluna;
+
+    procura_na_matriz(playfair, letra2);
+
+    if (linha1 == playfair->linha)
+        return 1;
+    
+    return 0;
+}
+
+int verifica_coluna(struct playfair_t *playfair, char letra1, char letra2)
+{
+    char linha1 = 0;
+    char coluna1 = 0;
+
+    procura_na_matriz(playfair, letra1);
+    linha1 = playfair->linha;
+    coluna1 = playfair->coluna;
+
+    procura_na_matriz(playfair, letra2);
+
+    if (coluna1 == playfair->coluna)
+        return 1;
+    
+        return 0;
+}
+
 //Pega os pares de letras para fazer as correspondências
 void cifra(struct texto_t *texto, struct playfair_t *playfair)
 {
-    #ifdef DEBUG
-    int j = 0; 
-    while (texto->texto_base[j] != '\0')
-    {
-        printf("%c", texto->texto_base[j]);
-        j++;
-    }
-    printf("\n");
-    #endif
-
     texto->tamanho = strlen(texto->texto_base);
     printf("texto->tamanho = %d\n", texto->tamanho);
     //Confere se a quantidade de caracteres é par para formar os pares
@@ -267,25 +309,71 @@ void cifra(struct texto_t *texto, struct playfair_t *playfair)
     }
 
     //Inicializa o campo do texto cifrado
-    playfair->texto_cifrado = malloc(texto->tamanho * sizeof(char));
+    playfair->texto_cifrado = malloc((texto->tamanho + 1)* sizeof(char));
 
     //Codifica
     printf("tamanho texto atualizado: %d\n", texto->tamanho);
-    int teste = 0;
-    for (int i = 0; i < (texto->tamanho - 1); i++)
+    #ifdef DEBUG
+    int j = 0; 
+    while (texto->texto_base[j] != '\0')
     {
-        //PRECISA PROCURAR DIRETO NA MATRIZ - É POR ISSO QUE DÁ ERRO -------
-        playfair->texto_cifrado[i] = playfair->matriz[i][i + 1];        //linha i coluna i + 1
-        playfair->texto_cifrado[i + 1] = playfair->matriz[i + 1][i];    //linha i + 1 coluna i
-        teste = i;
-        //------------------------------------------------------------------
+        printf("%c", texto->texto_base[j]);
+        j++;
+    }
+    printf("\n");
+    #endif
+
+    int fim;
+    for (int i = 0; i < (texto->tamanho - 1); i+=2)
+    {
+        procura_na_matriz(playfair, texto->texto_base[i]);        //acha a linha e a coluna
+        char linha1 = playfair->linha;
+        char coluna1 = playfair->coluna;
+        procura_na_matriz(playfair, texto->texto_base[i + 1]);
+        char linha2 = playfair->linha;
+        char coluna2 = playfair->coluna;
+
+        //printf("verifica linha = %d -- iteração %d\n", verifica_linha(playfair, texto->texto_base[i], texto->texto_base[i + 1]), i);
+        //printf("verifica coluna = %d -- iteração %d\n", verifica_coluna(playfair, texto->texto_base[i], texto->texto_base[i + 1]), i);
+
+        //verifica se as letras estão na mesma linha
+        if (verifica_linha(playfair, texto->texto_base[i], texto->texto_base[i +1]))
+        {
+            playfair->texto_cifrado[i] = playfair->matriz[linha1][(coluna1 + 1) % NUM_COLUNAS];      //rotaciona à direita
+            playfair->texto_cifrado[i + 1] = playfair->matriz[linha2][(coluna2 + 1) % NUM_COLUNAS];  //rotaciona à direita
+        }    
+        else if (verifica_coluna(playfair, texto->texto_base[i], texto->texto_base[i + 1]))
+        {
+            playfair->texto_cifrado[i] = playfair->matriz[(linha1 + 1) % NUM_LINHAS][coluna1];     //rotaciona para baixo
+            playfair->texto_cifrado[i + 1] = playfair->matriz[(linha2 + 1) % NUM_LINHAS][coluna2]; //rotaciona para baixo
+        }
+        else
+        {
+            playfair->texto_cifrado[i] = playfair->matriz[linha1][coluna2];
+            playfair->texto_cifrado[i + 1] = playfair->matriz[linha2][coluna1];
+        }
+
+        fim = i;
     }
 
-    printf("\n\nTESTE + 1 = %d\n", teste + 1);
-    #ifdef DEBUG
+    fim += 2;
+
+    //Finaliza com '\0'
+    playfair->texto_cifrado[fim] = '\0';
+
+    printf("\nTEXTO CIFRADO:\n");
+    int num_letras = 0;
     for (int i = 0; i < texto->tamanho; i ++)
+    {
         printf("%c", playfair->texto_cifrado[i]);
+        num_letras = i;
+    }
+    printf("\n");
+
+    #ifdef DEBUG
+    printf("Número de caracteres = %ld\n", strlen(playfair->texto_cifrado));
     #endif
+    
 }
 
 void decifra(struct playfair_t *playfair)
