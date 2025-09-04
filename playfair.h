@@ -15,6 +15,7 @@ struct playfair_t {
     char *chave;                    //chave que preenche a matriz (não repete letras)
     char *chave_recebida;           //registro da chave passada pelo usuário
     char *texto_cifrado;            //sugestivo
+    char *texto_decifrado;          //sugestivo também
     unsigned int tamanho_chave;     //tamanho da chave para facilitar as contas
     char linha;                     //linha alvo para codificação/decodifucação
     char coluna;                    //coluna alvo para codificação/decodificação
@@ -44,7 +45,7 @@ void monta_matriz(struct playfair_t *playfair, struct alfabeto_t *alfabeto);
 
 void cifra(struct texto_t *texto, struct playfair_t *playfair);
 
-void decifra(struct playfair_t *playfair);
+void decifra(struct playfair_t *playfair, char *arquivo_cifrado);
 
 void libera_texto(struct texto_t *texto);
 

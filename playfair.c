@@ -402,7 +402,7 @@ void cifra(struct texto_t *texto, struct playfair_t *playfair)
     //Finaliza com '\0'
     playfair->texto_cifrado[fim] = '\0';
 
-    //Grava o texto cifrado em um arquivo
+    //Grava o texto cifrado em um arquivo------------------------------------------------
     FILE *arquivo_cifrado;
 
     arquivo_cifrado = fopen("arquivo_cifrado.txt", "w");
@@ -412,7 +412,7 @@ void cifra(struct texto_t *texto, struct playfair_t *playfair)
         return;
     }
 
-    for (int i = 0; i < strlen(playfair->texto_cifrado); i++)
+    for (int i = 0; i < strlen(playfair->texto_cifrado) + 1; i++)           //o + 1 é para incluir o \0
         fprintf(arquivo_cifrado, "%c", (char) playfair->texto_cifrado[i]);
 
     fprintf(arquivo_cifrado, "\n");
@@ -420,6 +420,7 @@ void cifra(struct texto_t *texto, struct playfair_t *playfair)
     //Salva e fecha
     fflush(arquivo_cifrado);
     fclose(arquivo_cifrado);
+    //-----------------------------------------------------------------------------------
 
     #ifdef DEBUG
     printf("\nTEXTO CIFRADO:\n");
@@ -438,9 +439,95 @@ void cifra(struct texto_t *texto, struct playfair_t *playfair)
     return;
 }
 
-void decifra(struct playfair_t *playfair)
+void decifra(struct playfair_t *playfair, char *arquivo_cifrado)
 {
     //Decifra o texto usando as regras da playfair
+    int fim = 0;
+
+    //Pega o texto cifrado do arquivo ------------------------------------
+    FILE *arquivo = fopen(arquivo_cifrado, "r");
+    if (!arquivo)
+    {
+        printf("Não foi possível abrir o arquivo cifrado.\n");
+        return;
+    }
+    
+    rewind(arquivo);
+    char letra = 0;
+    int i = 0;
+    while ((letra = fgetc(arquivo)) != EOF)
+    {
+        playfair->texto_cifrado[i] = letra;
+        i++;
+    }
+
+    int tamanho = strlen(playfair->texto_cifrado);
+    //--------------------------------------------------------------------
+
+    //Aloca memória para o texto decifrado -------------------------------
+    playfair->texto_decifrado = malloc((tamanho + 1) * sizeof(char));
+    if (!playfair->texto_decifrado)
+    {
+        printf("Não foi possível alocar memória para o texto decifrado.\n");
+        return;
+    }
+    //--------------------------------------------------------------------
+
+    //Decifra ------------------------------------------------------------
+    for (int i = 0; i < tamanho - 1; i+=2)
+    {
+        procura_na_matriz(playfair, playfair->texto_cifrado[i]);
+        char linha1 = playfair->linha;
+        char coluna1 = playfair->coluna;
+        procura_na_matriz(playfair, playfair->texto_cifrado[i + 1]);
+        char linha2 = playfair->linha;
+        char coluna2 = playfair->coluna;
+
+        //Verifica se as letras obtidas estão na mesma linha ou coluna
+        if (verifica_linha(playfair, playfair->texto_cifrado[i], playfair->texto_cifrado[i + 1]))
+        {
+            playfair->texto_decifrado[i] = playfair->matriz[linha1][(coluna1 + NUM_COLUNAS - 1) % NUM_COLUNAS];
+            playfair->texto_decifrado[i + 1] = playfair->matriz[linha2][(coluna2 + NUM_COLUNAS - 1) % NUM_COLUNAS];
+        }
+        else if (verifica_coluna(playfair, playfair->texto_cifrado[i], playfair->texto_cifrado[i + 1]))
+        {
+            playfair->texto_decifrado[i] = playfair->matriz[(linha1 + NUM_LINHAS - 1) % NUM_LINHAS][coluna1];
+            playfair->texto_decifrado[i + 1] = playfair->matriz[(linha2 + NUM_LINHAS - 1) % NUM_LINHAS][coluna2];
+        }
+        else
+        {
+            playfair->texto_decifrado[i] = playfair->matriz[linha1][coluna2];
+            playfair->texto_decifrado[i + 1] = playfair->matriz[linha2][coluna1];
+        }
+
+        fim = i;
+    }
+    fim += 2;
+    //--------------------------------------------------------------------
+
+    //Coloca o texto decifrado em um arquivo -----------------------------
+    FILE *arquivo_decifrado = fopen("arquivo_decifrado.txt", "w");
+    if (!arquivo_decifrado)
+    {
+        printf("Não foi possível abrir o arquivo para guardar o texto decifrado.\n");
+        return;
+    }
+
+    for (int i = 0; i < fim; i++)
+        fprintf(arquivo_decifrado, "%c", playfair->texto_decifrado[i]);
+
+    fflush(arquivo_decifrado);
+    fclose(arquivo_decifrado);
+    //--------------------------------------------------------------------
+
+    #ifdef DEBUG
+    printf("\n\nTEXTO DECIFRADO:\n");
+    for (int i = 0; i < tamanho; i++)
+        printf("%c", playfair->texto_decifrado[i]);
+    printf("\n");
+    #endif
+
+    return;
 }
 
 void libera_texto(struct texto_t *texto)
