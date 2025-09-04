@@ -72,32 +72,32 @@ void inicializa_estruturas(struct playfair_t **playfair, struct texto_t **texto,
     if (!*texto)
     {
         printf("Erro ao alocar memória para texto.\n");
-        return(-1);
+        return;
     }
     if(!*playfair)
     {
         printf("Erro ao alocar memória para playfair.\n");
-        return(-1);
+        return;
     }
 
     *arquivo = malloc(256 * sizeof(char));
     if (!*arquivo)
     {
         printf("Erro ao alocar memória para o caminho do arquivo.\n");
-        return(-1);
+        return;
     }
     *chave = malloc(256 * sizeof(char));
     if (!*chave)
     {
         printf("Erro ao alocar memória para a chave.\n");
-        return(-1);
+        return;
     }
 
     *alfabeto = malloc(sizeof(struct alfabeto_t));
     if (!*alfabeto)
     {
         printf("Erro ao alocar memória para o alfabeto.\n");
-        return (-1);
+        return;
     }
 
     inicializa_texto(*texto);
@@ -223,9 +223,6 @@ void monta_matriz(struct playfair_t *playfair, struct alfabeto_t *alfabeto)
 
     char i = 0;     //linha
     char j = 0;     //coluna
-    char igual = 0;
-    char k = 0;
-    long int letra = 1;
     char usados[26] = {0};
 
     //Coloca a chave processada na matriz
@@ -235,7 +232,7 @@ void monta_matriz(struct playfair_t *playfair, struct alfabeto_t *alfabeto)
 
         int idx = c - 'A';
         if (!usados[idx]) {
-            playfair->matriz[i][j] = c;
+            playfair->matriz[i][j] = (char) c;
             usados[idx] = 1;
 
             j++;
@@ -250,7 +247,6 @@ void monta_matriz(struct playfair_t *playfair, struct alfabeto_t *alfabeto)
         j = 0;
 
     //Depois que colocou a chave, coloca o restante do alfabeto
-    int aux = 0;
     for (char c = 'A'; c <= 'Z'; c++)
     {
         if (c == 'J')
@@ -307,11 +303,9 @@ void procura_na_matriz(struct playfair_t *playfair, char letra)
 int verifica_linha(struct playfair_t *playfair, char letra1, char letra2)
 {
     char linha1 = 0;
-    char coluna1 = 0;
 
     procura_na_matriz(playfair, letra1);
     linha1 = playfair->linha;
-    coluna1 = playfair->coluna;
 
     procura_na_matriz(playfair, letra2);
 
@@ -323,11 +317,9 @@ int verifica_linha(struct playfair_t *playfair, char letra1, char letra2)
 
 int verifica_coluna(struct playfair_t *playfair, char letra1, char letra2)
 {
-    char linha1 = 0;
     char coluna1 = 0;
 
     procura_na_matriz(playfair, letra1);
-    linha1 = playfair->linha;
     coluna1 = playfair->coluna;
 
     procura_na_matriz(playfair, letra2);
@@ -380,18 +372,18 @@ void cifra(struct texto_t *texto, struct playfair_t *playfair)
         //verifica se as letras estão na mesma linha
         if (verifica_linha(playfair, texto->texto_base[i], texto->texto_base[i +1]))
         {
-            playfair->texto_cifrado[i] = playfair->matriz[linha1][(coluna1 + 1) % NUM_COLUNAS];      //rotaciona à direita
-            playfair->texto_cifrado[i + 1] = playfair->matriz[linha2][(coluna2 + 1) % NUM_COLUNAS];  //rotaciona à direita
+            playfair->texto_cifrado[i] = (char) playfair->matriz[linha1][(coluna1 + 1) % NUM_COLUNAS];      //rotaciona à direita
+            playfair->texto_cifrado[i + 1] = (char) playfair->matriz[linha2][(coluna2 + 1) % NUM_COLUNAS];  //rotaciona à direita
         }    
         else if (verifica_coluna(playfair, texto->texto_base[i], texto->texto_base[i + 1]))          //Verifica se estão na mesma coluna
         {
-            playfair->texto_cifrado[i] = playfair->matriz[(linha1 + 1) % NUM_LINHAS][coluna1];     //rotaciona para baixo
-            playfair->texto_cifrado[i + 1] = playfair->matriz[(linha2 + 1) % NUM_LINHAS][coluna2]; //rotaciona para baixo
+            playfair->texto_cifrado[i] = (char) playfair->matriz[(linha1 + 1) % NUM_LINHAS][coluna1];     //rotaciona para baixo
+            playfair->texto_cifrado[i + 1] = (char) playfair->matriz[(linha2 + 1) % NUM_LINHAS][coluna2]; //rotaciona para baixo
         }
         else
         {
-            playfair->texto_cifrado[i] = playfair->matriz[linha1][coluna2];
-            playfair->texto_cifrado[i + 1] = playfair->matriz[linha2][coluna1];
+            playfair->texto_cifrado[i] = (char) playfair->matriz[linha1][coluna2];
+            playfair->texto_cifrado[i + 1] = (char) playfair->matriz[linha2][coluna1];
         }
 
         fim = i;
@@ -414,8 +406,6 @@ void cifra(struct texto_t *texto, struct playfair_t *playfair)
 
     for (int i = 0; i < strlen(playfair->texto_cifrado) + 1; i++)           //o + 1 é para incluir o \0
         fprintf(arquivo_cifrado, "%c", (char) playfair->texto_cifrado[i]);
-
-    fprintf(arquivo_cifrado, "\n");
 
     //Salva e fecha
     fflush(arquivo_cifrado);
@@ -443,6 +433,7 @@ void decifra(struct playfair_t *playfair, char *arquivo_cifrado)
 {
     //Decifra o texto usando as regras da playfair
     int fim = 0;
+    int tamanho = 0;
 
     //Pega o texto cifrado do arquivo ------------------------------------
     FILE *arquivo = fopen(arquivo_cifrado, "r");
@@ -453,19 +444,21 @@ void decifra(struct playfair_t *playfair, char *arquivo_cifrado)
     }
     
     rewind(arquivo);
+
     char letra = 0;
-    int i = 0;
     while ((letra = fgetc(arquivo)) != EOF)
+        tamanho++;
+
+    //Aloca memória para o texto cifrado --------------------------------
+    playfair->texto_cifrado = malloc(tamanho * sizeof(char));
+    if (!playfair->texto_cifrado)
     {
-        playfair->texto_cifrado[i] = letra;
-        i++;
+        printf("Não foi possível alocar memória para o texto cifrado.\n");
+        return;
     }
-
-    int tamanho = strlen(playfair->texto_cifrado);
-    //--------------------------------------------------------------------
-
+    //-------------------------------------------------------------------
     //Aloca memória para o texto decifrado -------------------------------
-    playfair->texto_decifrado = malloc((tamanho + 1) * sizeof(char));
+    playfair->texto_decifrado = malloc((tamanho) * sizeof(char));
     if (!playfair->texto_decifrado)
     {
         printf("Não foi possível alocar memória para o texto decifrado.\n");
@@ -473,8 +466,17 @@ void decifra(struct playfair_t *playfair, char *arquivo_cifrado)
     }
     //--------------------------------------------------------------------
 
+    rewind(arquivo);
+    int i = 0;
+    while ((letra = fgetc(arquivo)) != EOF)
+    {
+        playfair->texto_cifrado[i] = letra;
+        i++;
+    }
+    //--------------------------------------------------------------------
+
     //Decifra ------------------------------------------------------------
-    for (int i = 0; i < tamanho - 1; i+=2)
+    for (int i = 0; i < tamanho - 2; i+=2)      //Tira o '\0' e o último caractere
     {
         procura_na_matriz(playfair, playfair->texto_cifrado[i]);
         char linha1 = playfair->linha;
@@ -486,18 +488,18 @@ void decifra(struct playfair_t *playfair, char *arquivo_cifrado)
         //Verifica se as letras obtidas estão na mesma linha ou coluna
         if (verifica_linha(playfair, playfair->texto_cifrado[i], playfair->texto_cifrado[i + 1]))
         {
-            playfair->texto_decifrado[i] = playfair->matriz[linha1][(coluna1 + NUM_COLUNAS - 1) % NUM_COLUNAS];
-            playfair->texto_decifrado[i + 1] = playfair->matriz[linha2][(coluna2 + NUM_COLUNAS - 1) % NUM_COLUNAS];
+            playfair->texto_decifrado[i] = (char) playfair->matriz[linha1][(coluna1 + NUM_COLUNAS - 1) % NUM_COLUNAS];
+            playfair->texto_decifrado[i + 1] = (char) playfair->matriz[linha2][(coluna2 + NUM_COLUNAS - 1) % NUM_COLUNAS];
         }
         else if (verifica_coluna(playfair, playfair->texto_cifrado[i], playfair->texto_cifrado[i + 1]))
         {
-            playfair->texto_decifrado[i] = playfair->matriz[(linha1 + NUM_LINHAS - 1) % NUM_LINHAS][coluna1];
-            playfair->texto_decifrado[i + 1] = playfair->matriz[(linha2 + NUM_LINHAS - 1) % NUM_LINHAS][coluna2];
+            playfair->texto_decifrado[i] = (char) playfair->matriz[(linha1 + NUM_LINHAS - 1) % NUM_LINHAS][coluna1];
+            playfair->texto_decifrado[i + 1] = (char) playfair->matriz[(linha2 + NUM_LINHAS - 1) % NUM_LINHAS][coluna2];
         }
         else
         {
-            playfair->texto_decifrado[i] = playfair->matriz[linha1][coluna2];
-            playfair->texto_decifrado[i + 1] = playfair->matriz[linha2][coluna1];
+            playfair->texto_decifrado[i] = (char) playfair->matriz[linha1][coluna2];
+            playfair->texto_decifrado[i + 1] = (char) playfair->matriz[linha2][coluna1];
         }
 
         fim = i;
@@ -522,7 +524,7 @@ void decifra(struct playfair_t *playfair, char *arquivo_cifrado)
 
     #ifdef DEBUG
     printf("\n\nTEXTO DECIFRADO:\n");
-    for (int i = 0; i < tamanho; i++)
+    for (int i = 0; i < fim; i++)
         printf("%c", playfair->texto_decifrado[i]);
     printf("\n");
     #endif
@@ -537,6 +539,7 @@ void libera_texto(struct texto_t *texto)
 
 void libera_playfair(struct playfair_t *playfair)
 {
+    free(playfair->texto_decifrado);
     free(playfair->texto_cifrado);
     free(playfair->chave);
     free(playfair);
