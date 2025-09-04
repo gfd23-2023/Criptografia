@@ -5,8 +5,17 @@
  * 	2) As letras 'i' e 'j' ficam no mesmo quadrado
  * 	3) Letras do texto original, caso fiquem sem par devem ser separadas por X
  * 	4) Duas letras na mesma coluna devem ser substituídas pela debaixo
- * 	5) Duas letras na mesma linha devem ser substituídas pela que estiver à esquerda
+ * 	5) Duas letras na mesma linha devem ser substituídas pela que estiver à direta
  * 	6) A letra original é cifrada e decifrada pela indexação do par de letras.*/
+
+/*O QUE FOI IMPLEMENTADO:
+ *1) As letras 'i' e 'j' são tratadas como a mesma;
+ *2) Completa o texto com X caso o número de caracteres seja ímpar;
+ *3) Rotação para baixo;
+ *4) Rotação para a direita;
+ *4) Letra original cifrada pela indexação dos pares na matriz.*/
+
+ /*OBSERVAÇÃO: Quando caem duas letras repetidas, o código simplesmente pega a da direita duas vezes.*/
 
 #include<stdio.h>
 #include<string.h>
@@ -28,9 +37,6 @@ void inicializa_alfabeto(struct alfabeto_t *alfabeto)
         
         alfabeto->maiusculas[idx++] = c;
     }
-    //Minúsculas
-    for (int i = 97, j = 0; j < 25; j++, i++)
-        alfabeto->minusculas[j] = i;
 }
 
 void inicializa_texto(struct texto_t *texto)
@@ -52,7 +58,47 @@ void inicializa_playfair(struct playfair_t *playfair)
     playfair->coluna = 0;
 }
 
-//Remove caracteres e símbolos especiais do texto
+void inicializa_estruturas(struct playfair_t *playfair, struct texto_t *texto, struct alfabeto_t *alfabeto, char *arquivo, char *chave)
+{
+    texto = malloc(sizeof(struct texto_t));
+    playfair = malloc(sizeof(struct playfair_t));
+    if (!texto)
+    {
+        printf("Erro ao alocar memória para texto.\n");
+        return(-1);
+    }
+    if(!playfair)
+    {
+        printf("Erro ao alocar memória para playfair.\n");
+        return(-1);
+    }
+
+    arquivo = malloc(256 * sizeof(char));
+    if (!arquivo)
+    {
+        printf("Erro ao alocar memória para o caminho do arquivo.\n");
+        return(-1);
+    }
+    chave = malloc(256 * sizeof(char));
+    if (!chave)
+    {
+        printf("Erro ao alocar memória para a chave.\n");
+        return(-1);
+    }
+
+    alfabeto = malloc(sizeof(struct alfabeto_t));
+    if (!alfabeto)
+    {
+        printf("Erro ao alocar memória para o alfabeto.\n");
+        return (-1);
+    }
+
+    inicializa_texto(texto);
+    inicializa_playfair(playfair);
+    inicializa_alfabeto(alfabeto);
+}
+
+//Remove caracteres e símbolos especiais do texto -- Talvez não precise
 void limpa_texto(struct texto_t *texto)
 {
     
@@ -102,20 +148,6 @@ void trata_texto(char *arquivo, struct texto_t *texto)
 
     fclose(arquivo_original);
     printf("Número de caracteres com espaços: %d\n", texto->tamanho);
-}
-
-void forma_pares(struct texto_t *texto)
-{
-    //Forma os pares partindo do texto base
-    //Se uma letra repetir, coloca um 'x' no meio
-    //Se uma letra ficar sozinha, coloca um X como par
-    
-    //Calcula a quantidade de pares que serão necessários
-    texto->num_pares = (texto->tamanho / 2);
-
-    if (texto->tamanho % 2)
-        texto->num_pares++;
-
 }
 
 void le_chave(struct playfair_t *playfair, struct alfabeto_t *alfabeto, char *chave)
@@ -233,9 +265,7 @@ void monta_matriz(struct playfair_t *playfair, struct alfabeto_t *alfabeto)
     for (int a = 0; a < 5; a++)
     {
         for (int b = 0; b < 5; b++)
-        {
             printf("%c ", playfair->matriz[a][b]);
-        }
 
         printf("\n");
     }
@@ -297,11 +327,10 @@ int verifica_coluna(struct playfair_t *playfair, char letra1, char letra2)
 void cifra(struct texto_t *texto, struct playfair_t *playfair)
 {
     texto->tamanho = strlen(texto->texto_base);
-    printf("texto->tamanho = %d\n", texto->tamanho);
+    printf("Tamanho inicial do texto: %d\n", texto->tamanho);
     //Confere se a quantidade de caracteres é par para formar os pares
     if (texto->tamanho % 2)
     {
-        printf("ENTREI AQUI\n");
         texto->texto_base[texto->tamanho] = 'X';
         texto->texto_base[texto->tamanho + 1] = '\0';
         texto->tamanho++;
@@ -312,7 +341,7 @@ void cifra(struct texto_t *texto, struct playfair_t *playfair)
     playfair->texto_cifrado = malloc((texto->tamanho + 1)* sizeof(char));
 
     //Codifica
-    printf("tamanho texto atualizado: %d\n", texto->tamanho);
+    printf("Tamanho do texto atualizado: %d\n", texto->tamanho);
     #ifdef DEBUG
     int j = 0; 
     while (texto->texto_base[j] != '\0')
@@ -333,16 +362,13 @@ void cifra(struct texto_t *texto, struct playfair_t *playfair)
         char linha2 = playfair->linha;
         char coluna2 = playfair->coluna;
 
-        //printf("verifica linha = %d -- iteração %d\n", verifica_linha(playfair, texto->texto_base[i], texto->texto_base[i + 1]), i);
-        //printf("verifica coluna = %d -- iteração %d\n", verifica_coluna(playfair, texto->texto_base[i], texto->texto_base[i + 1]), i);
-
         //verifica se as letras estão na mesma linha
         if (verifica_linha(playfair, texto->texto_base[i], texto->texto_base[i +1]))
         {
             playfair->texto_cifrado[i] = playfair->matriz[linha1][(coluna1 + 1) % NUM_COLUNAS];      //rotaciona à direita
             playfair->texto_cifrado[i + 1] = playfair->matriz[linha2][(coluna2 + 1) % NUM_COLUNAS];  //rotaciona à direita
         }    
-        else if (verifica_coluna(playfair, texto->texto_base[i], texto->texto_base[i + 1]))
+        else if (verifica_coluna(playfair, texto->texto_base[i], texto->texto_base[i + 1]))          //Verifica se estão na mesma coluna
         {
             playfair->texto_cifrado[i] = playfair->matriz[(linha1 + 1) % NUM_LINHAS][coluna1];     //rotaciona para baixo
             playfair->texto_cifrado[i + 1] = playfair->matriz[(linha2 + 1) % NUM_LINHAS][coluna2]; //rotaciona para baixo
@@ -371,9 +397,9 @@ void cifra(struct texto_t *texto, struct playfair_t *playfair)
     printf("\n");
 
     #ifdef DEBUG
-    printf("Número de caracteres = %ld\n", strlen(playfair->texto_cifrado));
+    printf("Número de caracteres do texto cifrado: %ld\n", strlen(playfair->texto_cifrado));
     #endif
-    
+
 }
 
 void decifra(struct playfair_t *playfair)

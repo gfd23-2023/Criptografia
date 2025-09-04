@@ -22,7 +22,6 @@ struct playfair_t {
 
 struct alfabeto_t {
     char maiusculas[25];            //contém todas as letras do alfabeto para facilitar a vida (0 ~ 25)
-    char minusculas[25];
 };
 
 #define TAM_ALFABETO 26
@@ -36,8 +35,6 @@ void inicializa_texto(struct texto_t *texto);
 void inicializa_playfair(struct playfair_t *playfair);
 
 void trata_texto(char *arquivo, struct texto_t *texto);
-
-void forma_pares(struct texto_t *texto);
 
 void le_chave(struct playfair_t *playfair, struct alfabeto_t *alfabeto, char *chave);
 
@@ -53,6 +50,6 @@ void libera_texto(struct texto_t *texto);
 
 void libera_playfair(struct playfair_t *playfair);
 
-void inicializa_estruturas(struct playfair_t p, struct texto_t t, struct alfabeto_t a);
+void inicializa_estruturas(struct playfair_t *playfair, struct texto_t *texto, struct alfabeto_t *alfabeto, char *arquivo, char *chave);
 
 #endif
