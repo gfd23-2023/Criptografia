@@ -3,6 +3,9 @@ CFLAGS = -Wall -g
 MAIN = cifra
 MAIN2 = decifra
 
+#Compila tudo
+all: $(MAIN) $(MAIN2)
+
 #Programa Principal - CIFRA
 $(MAIN): $(MAIN).o playfair.o
 	$(CC) -o $(MAIN) $(MAIN).o playfair.o $(CFLAGS)

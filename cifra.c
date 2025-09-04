@@ -12,7 +12,7 @@ int main()
     struct alfabeto_t *alfabeto;
 
     //Inicializações -----------------------------------------------------
-    inicializa_estruturas(playfair, texto, alfabeto, arquivo, chave);
+    inicializa_estruturas(&playfair, &texto, &alfabeto, &arquivo, &chave);
     //--------------------------------------------------------------------
 
     printf("Este código cifra um texto utilizando a Cifra Playfair.\n");

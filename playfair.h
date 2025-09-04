@@ -50,6 +50,6 @@ void libera_texto(struct texto_t *texto);
 
 void libera_playfair(struct playfair_t *playfair);
 
-void inicializa_estruturas(struct playfair_t *playfair, struct texto_t *texto, struct alfabeto_t *alfabeto, char *arquivo, char *chave);
+void inicializa_estruturas(struct playfair_t **playfair, struct texto_t **texto, struct alfabeto_t **alfabeto, char **arquivo, char **chave);
 
 #endif

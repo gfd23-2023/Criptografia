@@ -37,6 +37,8 @@ void inicializa_alfabeto(struct alfabeto_t *alfabeto)
         
         alfabeto->maiusculas[idx++] = c;
     }
+
+    return;
 }
 
 void inicializa_texto(struct texto_t *texto)
@@ -44,6 +46,8 @@ void inicializa_texto(struct texto_t *texto)
     texto->tamanho = 0;
     texto->num_pares = 0;
     texto->texto_base = NULL;
+
+    return;
 }
 
 void inicializa_playfair(struct playfair_t *playfair)
@@ -56,46 +60,51 @@ void inicializa_playfair(struct playfair_t *playfair)
     playfair->chave_recebida = NULL;        //alocar memória depois que tiver a chave
     playfair->linha = 0;
     playfair->coluna = 0;
+
+    return;
 }
 
-void inicializa_estruturas(struct playfair_t *playfair, struct texto_t *texto, struct alfabeto_t *alfabeto, char *arquivo, char *chave)
+//Passa os ponteiros originais
+void inicializa_estruturas(struct playfair_t **playfair, struct texto_t **texto, struct alfabeto_t **alfabeto, char **arquivo, char **chave)
 {
-    texto = malloc(sizeof(struct texto_t));
-    playfair = malloc(sizeof(struct playfair_t));
-    if (!texto)
+    *texto = malloc(sizeof(struct texto_t));
+    *playfair = malloc(sizeof(struct playfair_t));
+    if (!*texto)
     {
         printf("Erro ao alocar memória para texto.\n");
         return(-1);
     }
-    if(!playfair)
+    if(!*playfair)
     {
         printf("Erro ao alocar memória para playfair.\n");
         return(-1);
     }
 
-    arquivo = malloc(256 * sizeof(char));
-    if (!arquivo)
+    *arquivo = malloc(256 * sizeof(char));
+    if (!*arquivo)
     {
         printf("Erro ao alocar memória para o caminho do arquivo.\n");
         return(-1);
     }
-    chave = malloc(256 * sizeof(char));
-    if (!chave)
+    *chave = malloc(256 * sizeof(char));
+    if (!*chave)
     {
         printf("Erro ao alocar memória para a chave.\n");
         return(-1);
     }
 
-    alfabeto = malloc(sizeof(struct alfabeto_t));
-    if (!alfabeto)
+    *alfabeto = malloc(sizeof(struct alfabeto_t));
+    if (!*alfabeto)
     {
         printf("Erro ao alocar memória para o alfabeto.\n");
         return (-1);
     }
 
-    inicializa_texto(texto);
-    inicializa_playfair(playfair);
-    inicializa_alfabeto(alfabeto);
+    inicializa_texto(*texto);
+    inicializa_playfair(*playfair);
+    inicializa_alfabeto(*alfabeto);
+
+    return;
 }
 
 //Remove caracteres e símbolos especiais do texto -- Talvez não precise
@@ -148,6 +157,8 @@ void trata_texto(char *arquivo, struct texto_t *texto)
 
     fclose(arquivo_original);
     printf("Número de caracteres com espaços: %d\n", texto->tamanho);
+
+    return;
 }
 
 void le_chave(struct playfair_t *playfair, struct alfabeto_t *alfabeto, char *chave)
@@ -201,6 +212,8 @@ void le_chave(struct playfair_t *playfair, struct alfabeto_t *alfabeto, char *ch
         printf("%c", playfair->chave[i]);
     printf("\n");
     #endif
+
+    return;
 }
 
 
@@ -270,6 +283,8 @@ void monta_matriz(struct playfair_t *playfair, struct alfabeto_t *alfabeto)
         printf("\n");
     }
     #endif
+
+    return;
 
 }
 
@@ -387,6 +402,26 @@ void cifra(struct texto_t *texto, struct playfair_t *playfair)
     //Finaliza com '\0'
     playfair->texto_cifrado[fim] = '\0';
 
+    //Grava o texto cifrado em um arquivo
+    FILE *arquivo_cifrado;
+
+    arquivo_cifrado = fopen("arquivo_cifrado.txt", "w");
+    if (!arquivo_cifrado)
+    {
+        printf("Não foi possível abrir o arquivo para guardar o texto cifrado.\n");
+        return;
+    }
+
+    for (int i = 0; i < strlen(playfair->texto_cifrado); i++)
+        fprintf(arquivo_cifrado, "%c", (char) playfair->texto_cifrado[i]);
+
+    fprintf(arquivo_cifrado, "\n");
+
+    //Salva e fecha
+    fflush(arquivo_cifrado);
+    fclose(arquivo_cifrado);
+
+    #ifdef DEBUG
     printf("\nTEXTO CIFRADO:\n");
     int num_letras = 0;
     for (int i = 0; i < texto->tamanho; i ++)
@@ -396,10 +431,11 @@ void cifra(struct texto_t *texto, struct playfair_t *playfair)
     }
     printf("\n");
 
-    #ifdef DEBUG
+    
     printf("Número de caracteres do texto cifrado: %ld\n", strlen(playfair->texto_cifrado));
     #endif
 
+    return;
 }
 
 void decifra(struct playfair_t *playfair)
