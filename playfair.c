@@ -221,8 +221,8 @@ void monta_matriz(struct playfair_t *playfair, struct alfabeto_t *alfabeto)
 {
     //Monta a matriz que será usada na codificação
 
-    char i = 0;     //linha
-    char j = 0;     //coluna
+    int i = 0;     //linha
+    int j = 0;     //coluna
     char usados[26] = {0};
 
     //Coloca a chave processada na matriz
@@ -327,7 +327,7 @@ int verifica_coluna(struct playfair_t *playfair, char letra1, char letra2)
     if (coluna1 == playfair->coluna)
         return 1;
     
-        return 0;
+    return 0;
 }
 
 //Pega os pares de letras para fazer as correspondências
@@ -363,11 +363,11 @@ void cifra(struct texto_t *texto, struct playfair_t *playfair)
     for (int i = 0; i < (texto->tamanho - 1); i+=2)
     {
         procura_na_matriz(playfair, texto->texto_base[i]);        //acha a linha e a coluna
-        char linha1 = playfair->linha;
-        char coluna1 = playfair->coluna;
+        int linha1 = playfair->linha;
+        int coluna1 = playfair->coluna;
         procura_na_matriz(playfair, texto->texto_base[i + 1]);
-        char linha2 = playfair->linha;
-        char coluna2 = playfair->coluna;
+        int linha2 = playfair->linha;
+        int coluna2 = playfair->coluna;
 
         //verifica se as letras estão na mesma linha
         if (verifica_linha(playfair, texto->texto_base[i], texto->texto_base[i +1]))
@@ -397,7 +397,7 @@ void cifra(struct texto_t *texto, struct playfair_t *playfair)
     //Grava o texto cifrado em um arquivo------------------------------------------------
     FILE *arquivo_cifrado;
 
-    arquivo_cifrado = fopen("arquivo_cifrado.txt", "w");
+    arquivo_cifrado = fopen("arquivo_cifrado_playfair.txt", "w");
     if (!arquivo_cifrado)
     {
         printf("Não foi possível abrir o arquivo para guardar o texto cifrado.\n");
@@ -479,11 +479,11 @@ void decifra(struct playfair_t *playfair, char *arquivo_cifrado)
     for (int i = 0; i < tamanho - 2; i+=2)      //Tira o '\0' e o último caractere
     {
         procura_na_matriz(playfair, playfair->texto_cifrado[i]);
-        char linha1 = playfair->linha;
-        char coluna1 = playfair->coluna;
+        int linha1 = playfair->linha;
+        int coluna1 = playfair->coluna;
         procura_na_matriz(playfair, playfair->texto_cifrado[i + 1]);
-        char linha2 = playfair->linha;
-        char coluna2 = playfair->coluna;
+        int linha2 = playfair->linha;
+        int coluna2 = playfair->coluna;
 
         //Verifica se as letras obtidas estão na mesma linha ou coluna
         if (verifica_linha(playfair, playfair->texto_cifrado[i], playfair->texto_cifrado[i + 1]))
@@ -508,7 +508,7 @@ void decifra(struct playfair_t *playfair, char *arquivo_cifrado)
     //--------------------------------------------------------------------
 
     //Coloca o texto decifrado em um arquivo -----------------------------
-    FILE *arquivo_decifrado = fopen("arquivo_decifrado.txt", "w");
+    FILE *arquivo_decifrado = fopen("arquivo_decifrado_playfair.txt", "w");
     if (!arquivo_decifrado)
     {
         printf("Não foi possível abrir o arquivo para guardar o texto decifrado.\n");

@@ -13,8 +13,6 @@ int main()
 
     inicializa_estruturas(&playfair, &texto, &alfabeto, &arquivo_cifrado, &chave);
 
-    printf("Digite o caminho do arquivo a ser decifrado: ");
-    scanf("%255s", arquivo_cifrado);
     printf("Digite a chave para decofidicação: ");
     scanf("%255s", chave);
 
@@ -23,7 +21,7 @@ int main()
     monta_matriz(playfair, alfabeto);
 
     //Decifra
-    decifra(playfair, arquivo_cifrado);
+    decifra(playfair, "arquivo_cifrado_playfair.txt");
 
     free(alfabeto);
     free(arquivo_cifrado);
