@@ -46,3 +46,5 @@ O arquivo principal da playfair é `playfair.c` no qual a implementação de cad
 - Antes, o alfabeto também guardava as letras minúsculas. Depois eu decidi que seria mais fácil trabalhar somente com um tipo de letra, para melhorar a insersão delas na matriz.
 - Depois de algumas experiências não muito boas, optei por utilizar uma espécie de "bitmap" para mapear as letras na matriz. Seu funcionamento é simples: cria-se um vetor auxiliar inicializado com zeros. Conforme lemos a chave, marcamos com 1 a posição correspondente ao índice da letra. O índice é encontrado subtraindo o valor do caractere do valor de A (65). Então, as letras da chave e as demais são colocadas ao mesmo tempo na matriz.
 - Pensei em usar um `switch case` para implementar as regras da matriz, mas não consegui desenvolver muito bem. Então, mantive a estrutura de `else if`.
+
+O que é passado para o cifrador é o caminho do texto a ser cifrado, exemplo: `diretorio/texto.txt`
