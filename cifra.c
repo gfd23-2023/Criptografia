@@ -18,7 +18,7 @@ int main()
     printf("Este código cifra um texto utilizando a Cifra Playfair.\n");
     printf("Caminho do arquivo a ser cifrado: ");
     scanf("%255s", arquivo);
-    printf("Digite sua chave: ");
+    printf("Digite alguma palavra: ");
     scanf("%255s", chave);
 
     //Trata a chave

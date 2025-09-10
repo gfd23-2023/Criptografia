@@ -2,16 +2,24 @@
 #include <stdlib.h>
 #include <string.h>
 #include "playfair.h"
+#include "rail_fence.h"
 
 int main()
 {
+    /*Playfair ----------------------------------------------------------------------------*/
     char *chave;
     char *arquivo_cifrado;
     struct texto_t *texto;
     struct alfabeto_t *alfabeto;
     struct playfair_t *playfair;
+    /*-------------------------------------------------------------------------------------*/
+
+    /*Rail Fence --------------------------------------------------------------------------*/
+    struct rail_fence_t *rf;
+    /*-------------------------------------------------------------------------------------*/
 
     inicializa_estruturas(&playfair, &texto, &alfabeto, &arquivo_cifrado, &chave);
+    inicializa_rf(rf);
 
     printf("Digite a chave para decofidicação: ");
     scanf("%255s", chave);
