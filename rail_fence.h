@@ -9,7 +9,7 @@ struct rail_fence_t {
     unsigned char *texto_cifrado;            //Texto cifrado
     unsigned int num_linhas;                 //Chave
     unsigned int num_colunas;                //Inicialmente fixo, mas pode mudar se houver muitos caracteres
-    unsigned int num_caracteres;             //Número de caracteres do TEXTO LIMPO
+    unsigned long int num_caracteres;             //Número de caracteres do TEXTO LIMPO
 };
 
 #define NUM_COLUNAS 5
@@ -23,11 +23,14 @@ void inicializa_rf(struct rail_fence_t *rf);
 //Aloca espaço e monta a matriz da rail_fence
 void monta_matriz_rf(struct rail_fence_t *rf, char *texto);
 
+//Preenche a matriz para CIFRAR
+void preenche_cifra_rf(struct rail_fence_t *rf);
+
 //Cifra o texto
 void cifra_rf(struct rail_fence_t *rf);
 
 //Preenche os campos da rail_fence para DECIFRAR
-void preenche_rf(unsigned int num_linhas, unsigned int num_colunas);
+void preenche_decifra_rf(unsigned int num_linhas, unsigned int num_colunas);
 
 //Decifra o texto
 void decifra_rf(struct rail_fence_t *rf);
