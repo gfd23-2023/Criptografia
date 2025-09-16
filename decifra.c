@@ -19,6 +19,14 @@ int main()
     /*-------------------------------------------------------------------------------------*/
 
     inicializa_estruturas(&playfair, &texto, &alfabeto, &arquivo_cifrado, &chave);
+
+    //Rail Fence
+    rf = malloc(sizeof(struct rail_fence_t));
+    if (!rf)
+    {
+        printf("Erro ao alocar memória para a Rail Fence.\n");
+        return -1;
+    }
     inicializa_rf(rf);
 
     printf("Digite a chave para decofidicação: ");
@@ -37,4 +45,5 @@ int main()
     libera_texto(texto);
     free(texto);
     libera_playfair(playfair);
+    libera_rf(rf);
 }

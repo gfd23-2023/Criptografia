@@ -60,4 +60,5 @@ int main()
     libera_texto(texto);
     free(texto);
     libera_playfair(playfair);
+    libera_rf(rf);
 }

@@ -39,7 +39,7 @@ void monta_matriz_rf(struct rail_fence_t *rf, char *texto)
     //Conta o número de caracteres
     int c;
     rf->num_caracteres = 0;
-    while ((c = fgetc(arquivo)) != EOF)
+    while (((c = fgetc(arquivo)) != EOF) && (c != '\0'))
         rf->num_caracteres++;
 
     //Volta para o início
@@ -61,7 +61,8 @@ void monta_matriz_rf(struct rail_fence_t *rf, char *texto)
         rf->texto_limpo[i] = letra;
         i++;
     }
-    rf->texto_limpo[i] = '\0';
+    //printf("i = %d\n", i);
+    //rf->texto_limpo[i] = '\0';
 
     #ifdef DEBUG
     printf("Número de caracteres do texto (cifra rail fence) = %ld\n", rf->num_caracteres);
@@ -114,6 +115,7 @@ void preenche_cifra_rf(struct rail_fence_t *rf)
                 k++;
             }
 
+            //Caso sobrem campos vazios na matriz
             if (((i * rf->num_colunas) + j) >= rf->num_caracteres)
                 rf->matriz[i][j] = 'A';
         }
@@ -124,7 +126,7 @@ void preenche_cifra_rf(struct rail_fence_t *rf)
     for (int i = 0; i < rf->num_linhas; i++)
     {
         for (int j = 0; j < rf->num_colunas; j++)
-            printf("%d ", rf->matriz[i][j]);
+            printf("%c ", rf->matriz[i][j]);
         printf("\n");
     }
         
