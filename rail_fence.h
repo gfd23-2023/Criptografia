@@ -7,6 +7,7 @@ struct rail_fence_t {
     unsigned char **matriz;                  //Matriz que vai conter todos os caracteres
     unsigned char *texto_limpo;              //Texto base livre de espaços e acentuações
     unsigned char *texto_cifrado;            //Texto cifrado
+    unsigned char *texto_decifrado;          //Texto decifrado
     unsigned int num_linhas;                 //Chave
     unsigned int num_colunas;                //Inicialmente fixo, mas pode mudar se houver muitos caracteres
     unsigned long int num_caracteres;             //Número de caracteres do TEXTO LIMPO

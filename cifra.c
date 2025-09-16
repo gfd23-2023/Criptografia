@@ -51,6 +51,7 @@ int main()
     /*--------------------------------------------------------------------------*/
     monta_matriz_rf(rf, "arquivo_cifrado_playfair.txt");
     preenche_cifra_rf(rf);
+    cifra_rf(rf);
     /*--------------------------------------------------------------------------*/
 
     //Liberações de memória

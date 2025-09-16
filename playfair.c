@@ -539,7 +539,6 @@ void libera_texto(struct texto_t *texto)
 
 void libera_playfair(struct playfair_t *playfair)
 {
-    free(playfair->texto_decifrado);
     free(playfair->texto_cifrado);
     free(playfair->chave);
     free(playfair);

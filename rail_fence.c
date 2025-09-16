@@ -65,7 +65,7 @@ void monta_matriz_rf(struct rail_fence_t *rf, char *texto)
     //rf->texto_limpo[i] = '\0';
 
     #ifdef DEBUG
-    printf("Número de caracteres do texto (cifra rail fence) = %ld\n", rf->num_caracteres);
+    printf("\nNúmero de caracteres do texto (Rail Fence) = %ld\n", rf->num_caracteres);
     #endif
 
     //Define a quantidade de colunas
@@ -137,7 +137,45 @@ void preenche_cifra_rf(struct rail_fence_t *rf)
 //Cifra o texto
 void cifra_rf(struct rail_fence_t *rf)
 {
+    //Aloca espaço para o texto cifrado - não tem espaço para o \0
+    rf->texto_cifrado = malloc((rf->num_colunas * rf->num_linhas) * sizeof(char));
+    if (!rf->texto_cifrado)
+    {
+        printf("Não foi possível alocar memória para o texto cifrado (Rail Fence).\n");
+        return;
+    }
 
+    //Arquivo final
+    FILE *arquivo;
+
+    arquivo = fopen("arquivo_cifrado.txt", "w");
+    if (!arquivo)
+    {
+        printf("Erro ao abrir arquivo para o texto cifrado final.\n");
+        return;
+    }
+
+    //Transforma as colunas em linhas
+    long int k = 0;
+    for (int i = 0; i < rf->num_colunas; i++)
+    {
+        for (long int j = 0; j < rf->num_linhas; j++)
+        {
+            fprintf(arquivo, "%c", (char) rf->matriz[j][i]);
+            rf->texto_cifrado[k] = rf->matriz[j][i];
+            k++;
+            printf("k = %ld\n", k);
+        }
+    }
+
+    #ifdef DEBUG
+    for (long int i = 0; i < rf->num_caracteres; i++)
+        printf("%c", rf->texto_cifrado[i]);
+    printf("\n");
+    #endif
+
+    fflush(arquivo);
+    fclose(arquivo);
 }
 
 //Preenche os campos da rail_fence para DECIFRAR
@@ -161,6 +199,7 @@ void libera_rf(struct rail_fence_t *rf)
 
     free(rf->matriz);
     free(rf->texto_limpo);
+    free(rf->texto_cifrado);
 
     free(rf);
 }
