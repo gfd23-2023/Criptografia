@@ -77,7 +77,7 @@ void monta_matriz_rf(struct rail_fence_t *rf, char *texto)
         rf->num_colunas += 4;
     
     #ifdef DEBUG
-    printf("Número de colunas (Rail Fence) = %d\n", rf->num_colunas);
+    printf("Número de colunas (Rail Fence) = %ld\n", rf->num_colunas);
     #endif
 
     //Descobre a quantidade de linhas
@@ -88,26 +88,32 @@ void monta_matriz_rf(struct rail_fence_t *rf, char *texto)
         rf->num_linhas++;
 
     #ifdef DEBUG
-    printf("Número de linhas (Rail Fence) = %d\n", rf->num_linhas);
+    printf("Número de linhas (Rail Fence) = %ld\n", rf->num_linhas);
     #endif
 
     //Aloca espaço para a matriz
     rf->matriz = malloc(rf->num_linhas * sizeof(unsigned char*));           //vetor de ponteiros
-    for (int i = 0; i < rf->num_linhas; i++)
+    for (long int i = 0; i < rf->num_linhas; i++)
         rf->matriz[i] = malloc(rf->num_colunas * sizeof(unsigned char));
 
+
+    #ifdef DEBUG
+    for (long int i = 0; i < rf->num_caracteres; i++)
+        printf("%c", rf->texto_limpo[i]);
+    printf("\n");
+    #endif
 
     fclose(arquivo);
     return;
 }
 
-void preenche_cifra_rf(struct rail_fence_t *rf)
+void preenche_matriz(struct rail_fence_t *rf)
 {
     //Preenche a matriz (Sem o '\0')
     unsigned long int k = 0;
-    for (int i = 0; i < rf->num_linhas; i++)
+    for (long int i = 0; i < rf->num_linhas; i++)
     {
-        for (int j = 0; j < rf->num_colunas; j++)
+        for (long int j = 0; j < rf->num_colunas; j++)
         {
             if (rf->texto_limpo[k] != '\0')
             {
@@ -123,9 +129,9 @@ void preenche_cifra_rf(struct rail_fence_t *rf)
 
     #ifdef DEBUG
     //Imprime a matriz
-    for (int i = 0; i < rf->num_linhas; i++)
+    for (long int i = 0; i < rf->num_linhas; i++)
     {
-        for (int j = 0; j < rf->num_colunas; j++)
+        for (long int j = 0; j < rf->num_colunas; j++)
             printf("%c ", rf->matriz[i][j]);
         printf("\n");
     }
@@ -157,37 +163,162 @@ void cifra_rf(struct rail_fence_t *rf)
 
     //Transforma as colunas em linhas
     long int k = 0;
-    for (int i = 0; i < rf->num_colunas; i++)
+    for (long int i = 0; i < rf->num_colunas; i++)
     {
         for (long int j = 0; j < rf->num_linhas; j++)
         {
             fprintf(arquivo, "%c", (char) rf->matriz[j][i]);
             rf->texto_cifrado[k] = rf->matriz[j][i];
             k++;
+
+            #ifdef DEBUG
             printf("k = %ld\n", k);
+            #endif
         }
     }
+
+    #ifdef DEBUG
+    printf("Conteúdo de rf->texto_cifrado:\n");
+    for (long int i = 0; i < rf->num_caracteres; i++)
+        printf("%c", rf->texto_cifrado[i]);
+    printf("\n");
+    #endif
+
+    printf("Chave: \nNúmero de Linhas = %ld\nNúmero de Colunas = %ld\n", rf->num_linhas, rf->num_colunas);
+
+    fflush(arquivo);
+    fclose(arquivo);
+}
+
+void monta_matriz_decifra_rf(struct rail_fence_t *rf, char *texto, long int num_linhas, int num_colunas)
+{
+
+    rf->num_linhas = num_linhas;
+    rf->num_colunas = num_colunas;
+
+    FILE *arquivo = fopen(texto, "r");
+    if (!arquivo)
+    {
+        printf("Erro ao abrir o arquivo cifrado pela cifra Playfair\n.");
+        return;
+    }
+
+    //Conta o número de caracteres
+    long int c;
+    rf->num_caracteres = 0;
+    while (((c = fgetc(arquivo)) != EOF) && (c != '\0'))
+        rf->num_caracteres++;
+
+    //Volta para o início
+    rewind(arquivo);
+
+    //Aloca espaço para o vetor com o texto recebido
+    rf->texto_cifrado = malloc((rf->num_caracteres + 1) * sizeof(char));
+    if (!rf->texto_cifrado)
+    {
+        printf("Erro ao alocar memória para o texto base (Rail Fence).\n");
+        return;
+    }
+
+    //Copia o texto recebido para dentro do vetor
+    int letra;
+    int i = 0;
+    while ((letra = fgetc(arquivo)) !=  EOF)
+    {
+        rf->texto_cifrado[i] = letra;
+        i++;
+    }
+
+    #ifdef DEBUG
+    printf("\nNúmero de caracteres do texto (Rail Fence) = %ld\n", rf->num_caracteres);
+    #endif
+
+    //Aloca espaço para a matriz
+    rf->matriz = malloc(rf->num_linhas * sizeof(unsigned char*));           //vetor de ponteiros
+    for (long int i = 0; i < rf->num_linhas; i++)
+        rf->matriz[i] = malloc(rf->num_colunas * sizeof(unsigned char));
+
 
     #ifdef DEBUG
     for (long int i = 0; i < rf->num_caracteres; i++)
         printf("%c", rf->texto_cifrado[i]);
     printf("\n");
     #endif
-
-    fflush(arquivo);
-    fclose(arquivo);
 }
 
-//Preenche os campos da rail_fence para DECIFRAR
-void preenche_decifra_rf(unsigned int num_linhas, unsigned int num_colunas)
+void preenche_matriz_decifra_rf(struct rail_fence_t *rf)
 {
+    //Preenche a matriz (Sem o '\0')
+    unsigned long int k = 0;
+    for (long int i = 0; i < rf->num_linhas; i++)
+    {
+        for (long int j = 0; j < rf->num_colunas; j++)
+        {
+            if (rf->texto_cifrado[k] != '\0')
+            {
+                rf->matriz[i][j] = rf->texto_cifrado[k];
+                k++;
+            }
 
+            //Caso sobrem campos vazios na matriz
+            if (((i * rf->num_colunas) + j) >= rf->num_caracteres)
+                rf->matriz[i][j] = 'A';
+        }
+    }
+
+    #ifdef DEBUG
+    //Imprime a matriz
+    for (long int i = 0; i < rf->num_linhas; i++)
+    {
+        for (int j = 0; j < rf->num_colunas; j++)
+            printf("%c ", rf->matriz[i][j]);
+        printf("\n");
+    }
+        
+    printf("\n");
+    #endif
 }
 
 //Decifra o texto
-void decifra_rf(struct rail_fence_t *rf)
+void decifra_rf(struct rail_fence_t *rf, char *arquivo)
 {
+    FILE *arq_cifrado;
 
+    arq_cifrado = fopen(arquivo, "r");
+    if (!arq_cifrado)
+    {
+        printf("Não foi possível abrir o arquivo cifrado pela Rail Fence para decifrar.\n");
+        return;
+    }
+
+    //Arquivo final
+    FILE *arq_decifrado;
+
+    arq_decifrado = fopen("arquivo_decifrado_rf.txt", "w");
+    if (!arq_decifrado)
+    {
+        printf("Erro ao abrir arq_decifrado_rf.txt\n");
+        return;
+    }
+
+    //Fixar a coluna e percorrer todas as linhas
+    for (long int i = 0; i < rf->num_colunas; i++)
+    {
+        for (long int j = 0; j < rf->num_linhas; j++)
+        {
+            fprintf(arq_decifrado, "%c", rf->matriz[j][i]);
+
+            #ifdef DEBUG
+            printf("%c", rf->matriz[j][i]);
+            #endif
+        }
+
+        #ifdef DEBUG
+        printf("\n");
+        #endif
+    }
+
+    
 }
 
 //Libera rail_fence

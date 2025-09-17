@@ -50,7 +50,7 @@ int main()
     //Rail Fence
     /*--------------------------------------------------------------------------*/
     monta_matriz_rf(rf, "arquivo_cifrado_playfair.txt");
-    preenche_cifra_rf(rf);
+    preenche_matriz(rf);
     cifra_rf(rf);
     /*--------------------------------------------------------------------------*/
 

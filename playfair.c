@@ -529,6 +529,9 @@ void decifra(struct playfair_t *playfair, char *arquivo_cifrado)
     printf("\n");
     #endif
 
+    //Coloquei aqui porque em cifra.c ele não é alocado, então a função de liberar memória acusaria erro
+    free(playfair->texto_decifrado);
+
     return;
 }
 

@@ -16,6 +16,7 @@ int main()
 
     /*Rail Fence --------------------------------------------------------------------------*/
     struct rail_fence_t *rf;
+    long int linhas, colunas;
     /*-------------------------------------------------------------------------------------*/
 
     inicializa_estruturas(&playfair, &texto, &alfabeto, &arquivo_cifrado, &chave);
@@ -27,9 +28,21 @@ int main()
         printf("Erro ao alocar memória para a Rail Fence.\n");
         return -1;
     }
+    
+    /*Rail Fence -------------------------------------------------------------------------*/
+    printf("Digite a quantidade de linhas da matriz: \n");
+    scanf("%ld", &linhas);
+    printf("Digite a quantidade de colunas da matriz: \n");
+    scanf("%ld", &colunas);
+    
     inicializa_rf(rf);
+    monta_matriz_decifra_rf(rf, "arquivo_cifrado.txt", linhas, colunas);
+    preenche_matriz_decifra_rf(rf);
 
-    printf("Digite a chave para decofidicação: ");
+    decifra_rf(rf, "arquivo_cifrado.txt");
+    /*------------------------------------------------------------------------------------*/
+
+    printf("Digite a palavra chave para decofidicação: ");
     scanf("%255s", chave);
 
     //Trata a chave
@@ -37,7 +50,7 @@ int main()
     monta_matriz(playfair, alfabeto);
 
     //Decifra
-    decifra(playfair, "arquivo_cifrado_playfair.txt");
+    decifra(playfair, "arquivo_decifrado_rf.txt");
 
     free(alfabeto);
     free(arquivo_cifrado);
