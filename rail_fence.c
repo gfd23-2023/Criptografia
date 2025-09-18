@@ -193,8 +193,8 @@ void cifra_rf(struct rail_fence_t *rf)
 void monta_matriz_decifra_rf(struct rail_fence_t *rf, char *texto, long int num_linhas, int num_colunas)
 {
 
-    rf->num_linhas = num_linhas;
-    rf->num_colunas = num_colunas;
+    rf->num_linhas = num_colunas;
+    rf->num_colunas = num_linhas;
 
     FILE *arquivo = fopen(texto, "r");
     if (!arquivo)
@@ -302,26 +302,24 @@ void decifra_rf(struct rail_fence_t *rf, char *arquivo)
         return;
     }
 
-    #ifdef DEBUG
-    printf("========== Dentro da deifra_rf ==========\n");
-    #endif
+    
     //Fixar a coluna e percorrer todas as linhas
     for (long int i = 0; i < rf->num_colunas; i++)
-    {
         for (long int j = 0; j < rf->num_linhas; j++)
-        {
             fprintf(arq_decifrado, "%c", rf->matriz[j][i]);
 
-            #ifdef DEBUG
-            printf("%c ", rf->matriz[j][i]);
-            #endif
-        }
-
-        #ifdef DEBUG
+    #ifdef DEBUG
+    printf("========== Dentro da decifra_rf ==========\n");
+    for (long int i = 0; i < rf->num_linhas; i++)
+    {
+        for (long int j = 0; j < rf->num_colunas; j++)
+            printf("%c ", rf->matriz[i][j]);
         printf("\n");
-        #endif
     }
+    #endif
 
+    fflush(arq_decifrado);
+    fclose(arq_decifrado);
     
 }
 

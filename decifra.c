@@ -30,11 +30,11 @@ int main()
     }
     
     /*Rail Fence -------------------------------------------------------------------------*/
-    printf("Digite a quantidade de linhas da matriz: \n");
+    printf("Digite a quantidade de linhas da matriz: ");
     scanf("%ld", &linhas);
-    printf("Digite a quantidade de colunas da matriz: \n");
+    printf("Digite a quantidade de colunas da matriz: ");
     scanf("%ld", &colunas);
-    
+
     inicializa_rf(rf);
     monta_matriz_decifra_rf(rf, "arquivo_cifrado.txt", linhas, colunas);
     preenche_matriz_decifra_rf(rf);

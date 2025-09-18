@@ -1,8 +1,14 @@
+#define _POSIX_C_SOURCE 199309L     //para não acusar declaração implícita de clock_gettime
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <time.h>
+
 #include "playfair.h"
 #include "rail_fence.h"
+
+
 
 int main()
 {
@@ -12,6 +18,13 @@ int main()
     struct playfair_t *playfair;
     struct alfabeto_t *alfabeto;
     struct rail_fence_t *rf;
+
+    //Estrutura para medir o tempo
+    struct timespec inicio, fim;
+
+    //Variáveis de tempo
+    long int tempo_cifra_aes;
+    long int tempo_cifra_gpr;
 
     //Inicializações -----------------------------------------------------
     //Playfair
@@ -36,6 +49,10 @@ int main()
 
     //Playfair
     /*--------------------------------------------------------------------------*/
+
+    //Começa a medir o tempo
+    clock_gettime(CLOCK_MONOTONIC, &inicio);
+
     //Trata a chave
     le_chave(playfair, alfabeto, chave);
 
@@ -52,6 +69,9 @@ int main()
     monta_matriz_rf(rf, "arquivo_cifrado_playfair.txt");
     preenche_matriz(rf);
     cifra_rf(rf);
+
+    //Termina de medir o tempo
+    clock_gettime(CLOCK_MONOTONIC, &fim);
     /*--------------------------------------------------------------------------*/
 
     //Liberações de memória
