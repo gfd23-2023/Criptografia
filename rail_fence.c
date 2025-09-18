@@ -267,6 +267,7 @@ void preenche_matriz_decifra_rf(struct rail_fence_t *rf)
     }
 
     #ifdef DEBUG
+    printf("======= Dentro da preenche_matriz_decifra_rf =======\n");
     //Imprime a matriz
     for (long int i = 0; i < rf->num_linhas; i++)
     {
@@ -301,6 +302,9 @@ void decifra_rf(struct rail_fence_t *rf, char *arquivo)
         return;
     }
 
+    #ifdef DEBUG
+    printf("========== Dentro da deifra_rf ==========\n");
+    #endif
     //Fixar a coluna e percorrer todas as linhas
     for (long int i = 0; i < rf->num_colunas; i++)
     {
@@ -309,7 +313,7 @@ void decifra_rf(struct rail_fence_t *rf, char *arquivo)
             fprintf(arq_decifrado, "%c", rf->matriz[j][i]);
 
             #ifdef DEBUG
-            printf("%c", rf->matriz[j][i]);
+            printf("%c ", rf->matriz[j][i]);
             #endif
         }
 
