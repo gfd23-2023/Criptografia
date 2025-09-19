@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <time.h>
 
+#include "tempo.h"
 #include "playfair.h"
 #include "rail_fence.h"
 
@@ -21,10 +22,7 @@ int main()
 
     //Estrutura para medir o tempo
     struct timespec inicio, fim;
-
-    //Variáveis de tempo
-    long int tempo_cifra_aes;
-    long int tempo_cifra_gpr;
+    //struct timespec inicio_aes, fim_aes;
 
     //Inicializações -----------------------------------------------------
     //Playfair
@@ -73,6 +71,12 @@ int main()
     //Termina de medir o tempo
     clock_gettime(CLOCK_MONOTONIC, &fim);
     /*--------------------------------------------------------------------------*/
+
+    //Imprime dados do tempo:
+    printf("---------------------------------------------\n");
+    printf("CIFRA GI-PLAYFAIR-FENCE:\n");
+    imprime_tempo(&inicio, &fim);
+    printf("---------------------------------------------\n");
 
     //Liberações de memória
     free(alfabeto);
