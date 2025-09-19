@@ -1,7 +1,14 @@
+#define _POSIX_C_SOURCE 199309L     //para não acusar declaração implícita de clock_gettime
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <time.h>
+
 #include "playfair.h"
+#include "rail_fence.h"
+
+
 
 int main()
 {
@@ -10,16 +17,41 @@ int main()
     struct texto_t *texto;
     struct playfair_t *playfair;
     struct alfabeto_t *alfabeto;
+    struct rail_fence_t *rf;
+
+    //Estrutura para medir o tempo
+    struct timespec inicio, fim;
+
+    //Variáveis de tempo
+    long int tempo_cifra_aes;
+    long int tempo_cifra_gpr;
 
     //Inicializações -----------------------------------------------------
+    //Playfair
     inicializa_estruturas(&playfair, &texto, &alfabeto, &arquivo, &chave);
+
+    //Rail Fence
+    rf = malloc(sizeof(struct rail_fence_t));
+    if (!rf)
+    {
+        printf("Erro ao alocar memória para a Rail Fence.\n");
+        return -1;
+    }
+
+    inicializa_rf(rf);
     //--------------------------------------------------------------------
 
-    printf("Este código cifra um texto utilizando a Cifra Playfair.\n");
+    printf("Este código cifra um texto utilizando a Cifra Gi-Playfair-Fence.\n");
     printf("Caminho do arquivo a ser cifrado: ");
     scanf("%255s", arquivo);
-    printf("Digite sua chave: ");
+    printf("Digite alguma palavra: ");
     scanf("%255s", chave);
+
+    //Playfair
+    /*--------------------------------------------------------------------------*/
+
+    //Começa a medir o tempo
+    clock_gettime(CLOCK_MONOTONIC, &inicio);
 
     //Trata a chave
     le_chave(playfair, alfabeto, chave);
@@ -30,6 +62,17 @@ int main()
     //Monta a matriz
     monta_matriz(playfair, alfabeto);
     cifra(texto, playfair);
+    /*--------------------------------------------------------------------------*/
+
+    //Rail Fence
+    /*--------------------------------------------------------------------------*/
+    monta_matriz_rf(rf, "arquivo_cifrado_playfair.txt");
+    preenche_matriz(rf);
+    cifra_rf(rf);
+
+    //Termina de medir o tempo
+    clock_gettime(CLOCK_MONOTONIC, &fim);
+    /*--------------------------------------------------------------------------*/
 
     //Liberações de memória
     free(alfabeto);
@@ -38,4 +81,5 @@ int main()
     libera_texto(texto);
     free(texto);
     libera_playfair(playfair);
+    libera_rf(rf);
 }
