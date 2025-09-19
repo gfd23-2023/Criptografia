@@ -508,7 +508,7 @@ void decifra(struct playfair_t *playfair, char *arquivo_cifrado)
     //--------------------------------------------------------------------
 
     //Coloca o texto decifrado em um arquivo -----------------------------
-    FILE *arquivo_decifrado = fopen("arquivo_decifrado_playfair.txt", "w");
+    FILE *arquivo_decifrado = fopen("arquivo_decifrado.txt", "w");
     if (!arquivo_decifrado)
     {
         printf("Não foi possível abrir o arquivo para guardar o texto decifrado.\n");
