@@ -14,10 +14,9 @@ void gera_bytes_aleat(unsigned char *buffer, int len);
 long tamanho_arquivo(char *arquivo);
 
 //Função para cifrar
-void cifra_aes(unsigned char *plaintext, int plaintext_len, unsigned char *key, unsigned char *iv, unsigned char *ciphertext);
+void cifra_aes(const char *input_file, const char *output_file, unsigned char *key, unsigned char *iv);
 
 //Função para decifrar
-void decifra_aes(unsigned char *ciphertext, int ciphertext_len, unsigned char *key, unsigned char *iv, unsigned char *plaintext);
-
+void decifra_aes(const char *input_file, const char *output_file, unsigned char *key, unsigned char *iv);
 
 #endif

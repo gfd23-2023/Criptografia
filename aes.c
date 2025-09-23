@@ -24,75 +24,149 @@ void gera_bytes_aleat(unsigned char *buffer, int len)
 }
 
 //Consulta os metadados do arquivos por meio de uma syscall
-long tamanho_arquivo(char *arquivo)
+//long tamanho_arquivo(char *arquivo)
+//{
+//    struct stat st;
+
+//    if (stat(arquivo, &st) == 0)
+//        return st.st_size;          //tamanho do arquivo em bytes
+//}
+
+void cifra_aes(const char *input_file, const char *output_file, unsigned char *key, unsigned char *iv)
 {
-    struct stat st;
-
-    if (stat(arquivo, &st) == 0)
-        return st.st_size;          //tamanho do arquivo em bytes
-}
-
-void cifra_aes(unsigned char *plaintext, int plaintext_len, unsigned char *key, unsigned char *iv, unsigned char *ciphertext)
-{
-    //Cria o contexto de criptografia
-    EVP_CIPHER_CTX *ctx;
-    int len, ciphertext_len = 0;
-
-    //Arquivo de saída
-    FILE *arquivo = fopen("saida_aes.txt", "wb");
-    if (!arquivo)
-    {
-        fprintf(stderr, "Erro ao abrir arquivo de saída do AES\n");
+    FILE *in = fopen(input_file, "rb");
+    if (!in) {
+        fprintf(stderr, "Erro ao abrir arquivo de entrada\n");
         return;
     }
 
-    //Aloca memória para o contexo de criptografia
-    ctx = EVP_CIPHER_CTX_new();
-    if (!ctx)
-    {
-        fprintf(stderr, "Erro ao alocar memória para o contexto de criptografia\n");
+    FILE *out = fopen(output_file, "wb");
+    if (!out) {
+        fprintf(stderr, "Erro ao abrir arquivo de saída\n");
+        fclose(in);
+        return;
     }
 
-    //Inicializa o contexto de criptografia com AES-256-CBC
-    EVP_EncryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, key, iv);
+    EVP_CIPHER_CTX *ctx = EVP_CIPHER_CTX_new();
+    if (!ctx) {
+        fprintf(stderr, "Erro ao criar contexto AES\n");
+        fclose(in);
+        fclose(out);
+        return;
+    }
 
-    //Processa o arquivo em blocos
-    int offset = 0;
-    while (offset < plaintext_len)
+    // Inicializa com AES-256-CBC
+    if (!EVP_EncryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, key, iv)) {
+        fprintf(stderr, "Erro no EncryptInit\n");
+        EVP_CIPHER_CTX_free(ctx);
+        fclose(in);
+        fclose(out);
+        return;
+    }
+
+    unsigned char inbuf[BLOCK_SIZE];
+    unsigned char outbuf[BLOCK_SIZE + EVP_MAX_BLOCK_LENGTH];
+    memset(outbuf, 0, sizeof(outbuf));      //zera o buffer para não ter lixo de memória
+    int inlen, outlen;
+
+    // Lê e processa blocos do arquivo
+    while ((inlen = fread(inbuf, 1, BLOCK_SIZE, in)) > 0)
     {
-        int chunk = (plaintext_len - offset > BLOCK_SIZE) ? BLOCK_SIZE : (plaintext_len - offset);
-
-        if (!EVP_EncryptUpdate(ctx, ciphertext + ciphertext_len, &len, plaintext + offset, chunk))
-        {
-            fprintf(stderr, "Erro no EncryptUpdate - dentro de cifra_aes\n");
-            
-            //Libera memória
+        memset(outbuf, 0, sizeof(outbuf));  // zera antes de cada uso
+        if (!EVP_EncryptUpdate(ctx, outbuf, &outlen, inbuf, inlen)) {
+            fprintf(stderr, "Erro no EncryptUpdate\n");
             EVP_CIPHER_CTX_free(ctx);
-            fclose(arquivo);
+            fclose(in);
+            fclose(out);
             return;
         }
-
-        fwrite(ciphertext + ciphertext_len, 1, len, arquivo);
-        
-        ciphertext_len += len;
-        offset += chunk;
+        fwrite(outbuf, 1, outlen, out);
     }
 
-    //Trata o último bloco
-    if (!EVP_EncryptFinal_ex(ctx, ciphertext + ciphertext_len, &len))
+    // Finaliza (padding)
+    memset(outbuf, 0, sizeof(outbuf));  // zera antes de cada uso
+    if (!EVP_EncryptFinal_ex(ctx, outbuf, &outlen))
     {
         fprintf(stderr, "Erro no EncryptFinal\n");
         EVP_CIPHER_CTX_free(ctx);
-        fclose(arquivo);
+        fclose(in);
+        fclose(out);
+        return;
+    }
+    
+    fwrite(outbuf, 1, outlen, out);
+
+    EVP_CIPHER_CTX_free(ctx);
+    fclose(in);
+    fclose(out);
+
+}
+
+void decifra_aes(const char *input_file, const char *output_file, unsigned char *key, unsigned char *iv)
+{
+    FILE *in = fopen(input_file, "rb");
+    if (!in) {
+        fprintf(stderr, "Erro ao abrir arquivo de entrada\n");
         return;
     }
 
-    fwrite(ciphertext + ciphertext_len, 1, len, arquivo);
+    FILE *out = fopen(output_file, "wb");
+    if (!out) {
+        fprintf(stderr, "Erro ao abrir arquivo de saída\n");
+        fclose(in);
+        return;
+    }
 
-    ciphertext_len += len;
+    EVP_CIPHER_CTX *ctx = EVP_CIPHER_CTX_new();
+    if (!ctx) {
+        fprintf(stderr, "Erro ao criar contexto AES\n");
+        fclose(in);
+        fclose(out);
+        return;
+    }
+
+    // Inicializa com AES-256-CBC para decriptar
+    if (!EVP_DecryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, key, iv)) {
+        fprintf(stderr, "Erro no DecryptInit\n");
+        EVP_CIPHER_CTX_free(ctx);
+        fclose(in);
+        fclose(out);
+        return;
+    }
+
+    unsigned char inbuf[BLOCK_SIZE];
+    unsigned char outbuf[BLOCK_SIZE + EVP_MAX_BLOCK_LENGTH];
+    memset(outbuf, 0, sizeof(outbuf)); // zera o buffer
+    int inlen, outlen;
+
+    // Lê e processa blocos do arquivo cifrado
+    while ((inlen = fread(inbuf, 1, BLOCK_SIZE, in)) > 0)
+    {
+        memset(outbuf, 0, sizeof(outbuf)); // zera antes de cada uso
+        if (!EVP_DecryptUpdate(ctx, outbuf, &outlen, inbuf, inlen)) {
+            fprintf(stderr, "Erro no DecryptUpdate\n");
+            EVP_CIPHER_CTX_free(ctx);
+            fclose(in);
+            fclose(out);
+            return;
+        }
+        fwrite(outbuf, 1, outlen, out);
+    }
+
+    // Finaliza (trata padding)
+    memset(outbuf, 0, sizeof(outbuf)); // zera antes de cada uso
+    if (!EVP_DecryptFinal_ex(ctx, outbuf, &outlen)) {
+        fprintf(stderr, "Erro no DecryptFinal: possivelmente chave ou IV incorretos\n");
+        EVP_CIPHER_CTX_free(ctx);
+        fclose(in);
+        fclose(out);
+        return;
+    }
+
+    fwrite(outbuf, 1, outlen, out);
 
     EVP_CIPHER_CTX_free(ctx);
-    fclose(arquivo);
+    fclose(in);
+    fclose(out);
 
-    return;
 }
