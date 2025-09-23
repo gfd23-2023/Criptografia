@@ -8,7 +8,7 @@
 #include "tempo.h"
 #include "playfair.h"
 #include "rail_fence.h"
-
+#include "aes.h"
 
 
 int main()
@@ -22,7 +22,7 @@ int main()
 
     //Estrutura para medir o tempo
     struct timespec inicio, fim;
-    //struct timespec inicio_aes, fim_aes;
+    struct timespec inicio_aes, fim_aes;
 
     //Inicializações -----------------------------------------------------
     //Playfair
@@ -72,10 +72,43 @@ int main()
     clock_gettime(CLOCK_MONOTONIC, &fim);
     /*--------------------------------------------------------------------------*/
 
+    /*AES ----------------------------------------------------------------------*/
+    //Gera bytes aleatórios para a chave e para o iv
+    unsigned char chave_aes[kEY_SIZE];
+    unsigned char iv[IV_SIZE];
+
+    gera_bytes_aleat(chave_aes, sizeof(chave_aes));
+    gera_bytes_aleat(iv, sizeof(iv));
+
+    //Começa a marcar o tempo
+    clock_gettime(CLOCK_MONOTONIC, &inicio_aes);
+    
+    cifra_aes(arquivo, "saida_aes.txt", (unsigned char *) chave_aes, iv);
+
+    //Termina de marcar o tempo
+    clock_gettime(CLOCK_MONOTONIC, &fim_aes);
+    
+    //Chave do AES
+    printf("Chave do AES: ");
+    for (int i = 0; i < 32; i++)
+        printf("%02X ", chave_aes[i]);
+    printf("\n");
+
+    printf("IV AES: ");
+    for (int i = 0; i < 16; i++)
+        printf("%02X ", iv[i]);
+    printf("\n");
+    /*--------------------------------------------------------------------------*/
+
     //Imprime dados do tempo:
-    printf("---------------------------------------------\n");
+    printf("\n---------------------------------------------\n");
     printf("CIFRA GI-PLAYFAIR-FENCE:\n");
     imprime_tempo(&inicio, &fim);
+    printf("---------------------------------------------\n");
+
+    printf("\n---------------------------------------------\n");
+    printf("AES:\n");
+    imprime_tempo(&inicio_aes, &fim_aes);
     printf("---------------------------------------------\n");
 
     //Liberações de memória

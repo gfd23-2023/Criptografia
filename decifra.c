@@ -8,6 +8,7 @@
 #include "tempo.h"
 #include "playfair.h"
 #include "rail_fence.h"
+#include "aes.h"
 
 int main()
 {
@@ -38,7 +39,7 @@ int main()
         return -1;
     }
     
-    /*Leitura da Chave*/
+    /*Leitura das Chaves*/
     printf("Digite a quantidade de linhas da matriz: ");
     scanf("%ld", &linhas);
     printf("Digite a quantidade de colunas da matriz: ");
@@ -70,10 +71,50 @@ int main()
     clock_gettime(CLOCK_MONOTONIC, &fim);
     /*------------------------------------------------------------------------------------*/
 
+    /*AES --------------------------------------------------------------------------------*/
+    unsigned char chave_aes[kEY_SIZE];
+    unsigned char iv[IV_SIZE];
+
+    //Transforma de hexadecimal para binário - para ficar no formato de decifra()
+    printf("Digite a chave AES (32 bytes) em hexadecimal, separados por espaço: ");
+    for (int i = 0; i < 32; i++)
+    {
+        unsigned int byte;  // scanf precisa de int para %x
+        if (scanf("%x", &byte) != 1)
+        {
+            fprintf(stderr, "Erro ao ler byte %d da chave\n", i);
+            exit(1);
+        }
+        chave_aes[i] = (unsigned char)byte;
+    }
+
+    //Transforma de hexadecimal para binário - para ficar no formato de decifra()
+    printf("Digite o IV AES (16 bytes) em hexadecimal, separados por espaço: ");
+    for (int i = 0; i < 16; i++)
+    {
+        unsigned int byte;
+        if (scanf("%x", &byte) != 1)
+        {
+            fprintf(stderr, "Erro ao ler byte %d do IV\n", i);
+            exit(1);
+        }
+        iv[i] = (unsigned char)byte;
+    }
+
+    clock_gettime(CLOCK_MONOTONIC, &inicio_aes);        //começa a marcar o tempo
+    decifra_aes("saida_aes.txt", "arquivo_decifrado_aes.txt", chave_aes, iv);
+    clock_gettime(CLOCK_MONOTONIC, &fim_aes);           //termina de marcar o tempo
+    /*------------------------------------------------------------------------------------*/
+
     //Imprime os dados do tempo
     printf("---------------------------------------------\n");
     printf("DECIFRA GI-PLAYFAIR-FENCE:\n");
     imprime_tempo(&inicio, &fim);
+    printf("---------------------------------------------\n");
+
+    printf("\n---------------------------------------------\n");
+    printf("AES:\n");
+    imprime_tempo(&inicio_aes, &fim_aes);
     printf("---------------------------------------------\n");
 
     free(alfabeto);
