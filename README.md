@@ -80,3 +80,11 @@ struct rail_fence_t {
 - Para cifrar, o algoritmo fixa uma coluna e percorre todas as linhas, escrevendo-as em um arquivo. A decifragem funciona da mesma maneira, após remontar a matriz, basta fixar uma coluna e percorrer todas as linhas até o fim de todas as colunas.
 - Depois de implementar a Playfair, foi consideravelmente mais fácil pensar e implementar a Rail Fence. Talvez ela seja mais simples de implementar mesmo, mas a impressão deixada foi que a parte mais difícil do trabalho foi limpar e tratar o texto. Com isso pronto, o restante fluiu rápido e bem.
 - Um ponto talvez não tão trivial foi corrigir os bugs que surgiram pelo caminho
+
+#### 1.3 AES  
+Implementar o AES foi mais difícil do que parecia. Para essa cifra, foi criado mais um par de arquivos `.c`e `.h` para cifrar e decifrar o texto, junto com uma função auxiliar de gerar bytes aleatporios.
+
+##### Principais Erros  
+1. Disparado, o principal problema foi entender o fluxo das funções da documentação. Depois disso, ficou mais simples entender o que precisava ser feito:
+`criar o contexto de criptografia` -> `inicializar o contexto criado` -> `cifrar em blocos de bytes` -> `tratar o último bloco` -> `liberar o contexto de criptografia`. Descobri da pior maneira que não existe uma função em `C` que encapsule isso tudo.
+2. O segundo pior problema foi tratar a chave. O formato dela causou certa confusão no momento de imprimir no terminal e também ler do terminal. A solução foi tratar a chave lida (em `decifra.c`) de hexadecimal para binário.
