@@ -38,6 +38,14 @@ void cifra_aes(unsigned char *plaintext, int plaintext_len, unsigned char *key, 
     EVP_CIPHER_CTX *ctx;
     int len, ciphertext_len = 0;
 
+    //Arquivo de saída
+    FILE *arquivo = fopen("saida_aes.txt", "wb");
+    if (!arquivo)
+    {
+        fprintf(stderr, "Erro ao abrir arquivo de saída do AES\n");
+        return;
+    }
+
     //Aloca memória para o contexo de criptografia
     ctx = EVP_CIPHER_CTX_new();
     if (!ctx)
@@ -59,10 +67,13 @@ void cifra_aes(unsigned char *plaintext, int plaintext_len, unsigned char *key, 
             fprintf(stderr, "Erro no EncryptUpdate - dentro de cifra_aes\n");
             
             //Libera memória
-            EVP_CIPHER_TEXT_CTX_free(ctx);
+            EVP_CIPHER_CTX_free(ctx);
+            fclose(arquivo);
             return;
         }
 
+        fwrite(ciphertext + ciphertext_len, 1, len, arquivo);
+        
         ciphertext_len += len;
         offset += chunk;
     }
@@ -72,14 +83,16 @@ void cifra_aes(unsigned char *plaintext, int plaintext_len, unsigned char *key, 
     {
         fprintf(stderr, "Erro no EncryptFinal\n");
         EVP_CIPHER_CTX_free(ctx);
+        fclose(arquivo);
         return;
     }
 
-    ciphertext_len += len;
-    EVP_CIPHER_CTX_free(ctx);
-    return;
+    fwrite(ciphertext + ciphertext_len, 1, len, arquivo);
 
-    /*OBSERVAÇÃO!!!!!
-     *AINDA PRECISO FAZER COM QUE A FUNÇÃO CIFRA ESCREVA
-     *O TEXTO CIFRADO DENTRO DE UM ARQUIVO!!!!!!*/
+    ciphertext_len += len;
+
+    EVP_CIPHER_CTX_free(ctx);
+    fclose(arquivo);
+
+    return;
 }
