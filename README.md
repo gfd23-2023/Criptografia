@@ -6,7 +6,7 @@
 ## Cifra Gi-Playfair-Fence
 ### Sumário:
 1. Processo de implementação
-2. Funcionamento da cifra
+2. Arquivos
 3. Resultados
 
 ### Linguagem: C
@@ -95,7 +95,7 @@ Implementar o AES foi mais difícil do que parecia. Para essa cifra, foi criado 
 3. Pelo incrível que pareça, nos primeiros testes da cifragem eu utilizei a chave errada e isso gerou grandes problemas até que eu pudesse entender o que estava acontecendo.
 
 ### 2. Arquivos
-O código geraa muitos arquivos, abaixo segue a ordem deles:
+O código gera muitos arquivos, abaixo segue a ordem deles:
 
 `Cifra`
 1. `Texto claro`: Entra na Playfair.
