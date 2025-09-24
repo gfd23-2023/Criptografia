@@ -43,5 +43,5 @@ debug: CFLAGS += -O0 -DDEBUG
 debug clean: $(MAIN) $(MAIN2)
 
 clean:
-	rm -f *.o *~ $(MAIN) $(MAIN2)
+	rm -f *.o *~ *.txt grafico_* $(MAIN) $(MAIN2)
 	find . -name "*.sw*" -delete

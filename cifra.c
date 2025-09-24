@@ -24,6 +24,10 @@ int main()
     struct timespec inicio, fim;
     struct timespec inicio_aes, fim_aes;
 
+    //Variáveis de tempo
+    double gi = 0.0;
+    double aes = 0.0;
+
     //Inicializações -----------------------------------------------------
     //Playfair
     inicializa_estruturas(&playfair, &texto, &alfabeto, &arquivo, &chave);
@@ -100,16 +104,29 @@ int main()
     printf("\n");
     /*--------------------------------------------------------------------------*/
 
+    /*Dados do tempo -----------------------------------------------------------*/
+    //Abre o arquivo
+    FILE *arq = fopen("dados_tempo.txt", "w");
+    if (!arq)
+    {
+        printf("Erro ao abrir o arquivo para os dados de tempo.\n");
+        return -1;
+    }
+
     //Imprime dados do tempo:
     printf("\n---------------------------------------------\n");
     printf("CIFRA GI-PLAYFAIR-FENCE:\n");
-    imprime_tempo(&inicio, &fim);
+    gi = imprime_tempo(&inicio, &fim);
+    tempo_arquivo(arq, gi);
     printf("---------------------------------------------\n");
 
     printf("\n---------------------------------------------\n");
     printf("AES:\n");
-    imprime_tempo(&inicio_aes, &fim_aes);
+    aes = imprime_tempo(&inicio_aes, &fim_aes);
+    tempo_arquivo(arq, aes);
     printf("---------------------------------------------\n");
+
+    /*--------------------------------------------------------------------------*/
 
     //Liberações de memória
     free(alfabeto);
