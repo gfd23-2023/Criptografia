@@ -1,9 +1,13 @@
 # Criptografia 🌐📱
 
+## Aluna: Giovanna Fioravante Dalledone
+> GRR: 20232370
+
 ## Cifra Gi-Playfair-Fence
 ### Sumário:
 1. Processo de implementação
 2. Funcionamento da cifra
+3. Resultados
 
 ### Linguagem: C
 
@@ -42,9 +46,9 @@ struct alfabeto_t {
 };
 ```
 
-O arquivo principal da playfair é `playfair.c` no qual a implementação de cada funão é feita. O Projeto foi sofrendo diversas mudanças ao longo da implementação, por exemplo:
+O arquivo principal da playfair é `playfair.c` no qual a implementação de cada função é feita. O Projeto foi sofrendo diversas mudanças ao longo da implementação, por exemplo:
 - Antes, o alfabeto também guardava as letras minúsculas. Depois eu decidi que seria mais fácil trabalhar somente com um tipo de letra, para melhorar a insersão delas na matriz.
-- Depois de algumas experiências não muito boas, optei por utilizar uma espécie de "bitmap" para mapear as letras na matriz. Seu funcionamento é simples: cria-se um vetor auxiliar inicializado com zeros. Conforme lemos a chave, marcamos com 1 a posição correspondente ao índice da letra. O índice é encontrado subtraindo o valor do caractere do valor de A (65). Então, as letras da chave e as demais são colocadas ao mesmo tempo na matriz.
+- Depois de algumas experiências não muito boas, optei por utilizar uma espécie de "bitmap" para mapear as letras na matriz. Seu funcionamento é simples: cria-se um vetor auxiliar inicializado com zeros. Conforme lemos a chave, marcamos com 1 a posição correspondente ao índice da letra. O índice é encontrado subtraindo o valor do caractere do valor de `A` (65). Então, as letras da chave e as demais são colocadas ao mesmo tempo na matriz.
 - Pensei em usar um `switch case` para implementar as regras da matriz, mas não consegui desenvolver muito bem. Então, mantive a estrutura de `else if`.  
 - Vale ressaltar que esse código da playfair não insere um X entre duas letras iguais.
 
@@ -88,3 +92,29 @@ Implementar o AES foi mais difícil do que parecia. Para essa cifra, foi criado 
 1. Disparado, o principal problema foi entender o fluxo das funções da documentação. Depois disso, ficou mais simples entender o que precisava ser feito:
 `criar o contexto de criptografia` -> `inicializar o contexto criado` -> `cifrar em blocos de bytes` -> `tratar o último bloco` -> `liberar o contexto de criptografia`. Descobri da pior maneira que não existe uma função em `C` que encapsule isso tudo.
 2. O segundo pior problema foi tratar a chave. O formato dela causou certa confusão no momento de imprimir no terminal e também ler do terminal. A solução foi tratar a chave lida (em `decifra.c`) de hexadecimal para binário.
+3. Pelo incrível que pareça, nos primeiros testes da cifragem eu utilizei a chave errada e isso gerou grandes problemas até que eu pudesse entender o que estava acontecendo.
+
+### 2. Arquivos
+O código geraa muitos arquivos, abaixo segue a ordem deles:
+
+`Cifra`
+1. `Texto claro`: Entra na Playfair.
+2. `arquivo_cifrado_playfair.txt`: Entra na Rail Fence.
+3. `arquivo_cifrado.txt`: Texto final cifrado.
+
+`Decifra`  
+1. `arquivo_cifrado.txt`: Entra na Rail Fence.
+2. `arquivo_decifrado_rf.txt`: Parcialmente decifrado, entra na Playfair.
+3. `arquivo_decifrado.txt`: Arquivo final decifrado.
+
+>OBS: O arquivo final decifrado vai ser diferente do texto original por doi motivos: o código não codifica os caracteres especiais multibyte como os símbolos, apenas os ignora, e também não trata os casos das letras acentuadas ou caracteres como `ç`, eles são apenas "engolidos".
+
+`Arquivos adicionais`
+1. `Gráficos`: Gerados pelo script em pyhton.
+2. `Textos`: Em um diretório separado.
+
+### 3. Resultados
+O algoritmo `AES` é absurdo e performa incrivelmente bem em todos os testes. O algoritmo que implementei demora para tratar o texto e tem uma cifragem relativamente rápida pois trabalha quase sempre com matrizes e indexações simples.  
+Dois fatores limitadores para o desempenho do algoritmo podem ser:
+1. A capacidade do computador, pois, quando testei no computador do laboratório LIAMF o algoritmo rodou quase que instantaneamente para o texto entre `100KB` e `1MB`, além de levar um minuto ou dois para cifrar o arquivo maior do que `1MB`. Entretanto, no laptop pessoal no qual testei, o ambos os arquivos levaram mais do que 5 minutos para rodar.
+2. O fato de não processar em blocos. O código tem uma característica de tratar o texto em um vetor absurdo e enorme na Playfair e uma matriz imensa na Rail Fence. Ao invés de tratar o texto em blocos menores, como faz o AES, optei por algo mais direto, pois, em um bom computador não é para afetar tanto no desempenho e a implementação ficou mais simples.

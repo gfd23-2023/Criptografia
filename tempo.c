@@ -13,9 +13,8 @@ double imprime_tempo(struct timespec *inicio, struct timespec *fim)
     printf("Duração: %ld segundos, %ld nanosegundos\n", fim->tv_sec - inicio->tv_sec, fim->tv_nsec - inicio->tv_nsec);
     #endif
 
-    double sec;
-
-    sec = (double) (fim->tv_nsec - inicio->tv_nsec)/1000000000.0;
+    double sec = (fim->tv_sec - inicio->tv_sec) +
+                 (fim->tv_nsec - inicio->tv_nsec) / 1e9;
 
     printf("Duração: %.10f segundos\n", sec);
     

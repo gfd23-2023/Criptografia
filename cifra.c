@@ -52,8 +52,10 @@ int main()
     //Playfair
     /*--------------------------------------------------------------------------*/
 
+    #ifdef DEBUG
     //Começa a medir o tempo
     clock_gettime(CLOCK_MONOTONIC, &inicio);
+    #endif
 
     //Trata a chave
     le_chave(playfair, alfabeto, chave);
@@ -63,6 +65,11 @@ int main()
 
     //Monta a matriz
     monta_matriz(playfair, alfabeto);
+
+    #ifndef DEBUG
+    //Começa a medir o tempo
+    clock_gettime(CLOCK_MONOTONIC, &inicio);
+    #endif
     cifra(texto, playfair);
     /*--------------------------------------------------------------------------*/
 
