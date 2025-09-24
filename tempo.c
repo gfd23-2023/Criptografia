@@ -5,7 +5,7 @@
 
 #include "tempo.h"
 
-void imprime_tempo(struct timespec *inicio, struct timespec *fim)
+double imprime_tempo(struct timespec *inicio, struct timespec *fim)
 {
     #ifdef DEBUG
     printf("inicio: %ld segundos, %ld nanossegundos\n", inicio->tv_sec, inicio->tv_nsec);
@@ -13,9 +13,24 @@ void imprime_tempo(struct timespec *inicio, struct timespec *fim)
     printf("Duração: %ld segundos, %ld nanosegundos\n", fim->tv_sec - inicio->tv_sec, fim->tv_nsec - inicio->tv_nsec);
     #endif
 
-    double nanosec;
+    double sec;
 
-    nanosec = (double) (fim->tv_nsec - inicio->tv_nsec)/1000000000.0;
+    sec = (double) (fim->tv_nsec - inicio->tv_nsec)/1000000000.0;
 
-    printf("Duração: %.10f segundos\n", nanosec);
+    printf("Duração: %.10f segundos\n", sec);
+    
+    return sec;
+}
+
+void tempo_arquivo(FILE *arquivo, double segundos)
+{
+    //Confere se está aberto
+    if (!arquivo)
+    {
+        printf("Erro ao abrir arquivo para gravar o tempo.\n");
+        return;
+    }
+
+    //Escreve
+    fprintf(arquivo, "%.10f\n", segundos);
 }
