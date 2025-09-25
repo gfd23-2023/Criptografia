@@ -25,7 +25,7 @@ int main()
     struct timespec inicio_aes, fim_aes;
 
     //Variáveis de tempo
-    double gi = 0.0;
+    double p_time = 0.0, rf_time = 0.0;
     double aes = 0.0;
 
     //Inicializações -----------------------------------------------------
@@ -66,21 +66,43 @@ int main()
     //Monta a matriz
     monta_matriz(playfair, alfabeto);
 
-    #ifndef DEBUG
     //Começa a medir o tempo
     clock_gettime(CLOCK_MONOTONIC, &inicio);
-    #endif
+
     cifra(texto, playfair);
+
+    clock_gettime(CLOCK_MONOTONIC, &fim);
+
+    printf("\n---------------------------------------------\n");
+    printf("PLAYFAIR:\n");
+    p_time = imprime_tempo(&inicio, &fim);
+    printf("---------------------------------------------\n");
+
+    //Grava o arquivo
+    grava_texto_cifrado(playfair);
     /*--------------------------------------------------------------------------*/
 
     //Rail Fence
     /*--------------------------------------------------------------------------*/
+    #ifdef DEBUG
+    printf("\n\nEntrando na Rail Fence!\n");
+    #endif
+
     monta_matriz_rf(rf, "arquivo_cifrado_playfair.txt");
     preenche_matriz(rf);
+
+    //Começa a medir o tempo
+    clock_gettime(CLOCK_MONOTONIC, &inicio);
+
     cifra_rf(rf);
 
     //Termina de medir o tempo
     clock_gettime(CLOCK_MONOTONIC, &fim);
+
+    printf("\n---------------------------------------------\n");
+    printf("RAIL-FENCE:\n");
+    rf_time = imprime_tempo(&inicio, &fim);
+    printf("---------------------------------------------\n");
     /*--------------------------------------------------------------------------*/
 
     /*AES ----------------------------------------------------------------------*/
@@ -123,8 +145,9 @@ int main()
     //Imprime dados do tempo:
     printf("\n---------------------------------------------\n");
     printf("CIFRA GI-PLAYFAIR-FENCE:\n");
-    gi = imprime_tempo(&inicio, &fim);
-    tempo_arquivo(arq, gi);
+    double total = p_time + rf_time;
+    printf("Total = %.10f\n", total);
+    tempo_arquivo(arq, total);
     printf("---------------------------------------------\n");
 
     printf("\n---------------------------------------------\n");

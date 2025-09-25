@@ -28,7 +28,7 @@ int main()
     /*Tempo*/
     struct timespec inicio, fim;
     struct timespec inicio_aes, fim_aes;
-    double gi = 0.0;
+    double p_time = 0.0, rf_time = 0.0;
     double aes = 0.0;
 
     inicializa_estruturas(&playfair, &texto, &alfabeto, &arquivo_cifrado, &chave);
@@ -51,14 +51,23 @@ int main()
 
     /*Rail Fence -------------------------------------------------------------------------*/
     inicializa_rf(rf);
+    
+    monta_matriz_decifra_rf(rf, "arquivo_cifrado.txt", linhas, colunas);
+    preenche_matriz_decifra_rf(rf);
 
     //Começa a medir o tempo
     clock_gettime(CLOCK_MONOTONIC, &inicio);
 
-    monta_matriz_decifra_rf(rf, "arquivo_cifrado.txt", linhas, colunas);
-    preenche_matriz_decifra_rf(rf);
-
     decifra_rf(rf, "arquivo_cifrado.txt");
+
+    //Termina de medir o tempo
+    clock_gettime(CLOCK_MONOTONIC, &fim);
+
+    //Imprime os dados do tempo
+    printf("---------------------------------------------\n");
+    printf("RAIL-FENCE:\n");
+    rf_time = imprime_tempo(&inicio, &fim);
+    printf("---------------------------------------------\n");
     /*------------------------------------------------------------------------------------*/
 
     /*Playfair ---------------------------------------------------------------------------*/
@@ -66,11 +75,20 @@ int main()
     le_chave(playfair, alfabeto, chave);
     monta_matriz(playfair, alfabeto);
 
+    //Começa a medir o tempo
+    clock_gettime(CLOCK_MONOTONIC, &inicio);
+
     //Decifra
     decifra(playfair, "arquivo_decifrado_rf.txt");
 
     //Termina de medir o tempo
     clock_gettime(CLOCK_MONOTONIC, &fim);
+
+    //Imprime os dados do tempo
+    printf("---------------------------------------------\n");
+    printf("PLAYFAIR\n");
+    p_time = imprime_tempo(&inicio, &fim);
+    printf("---------------------------------------------\n");
     /*------------------------------------------------------------------------------------*/
 
     /*AES --------------------------------------------------------------------------------*/
@@ -121,8 +139,9 @@ int main()
     //Imprime os dados do tempo
     printf("---------------------------------------------\n");
     printf("DECIFRA GI-PLAYFAIR-FENCE:\n");
-    gi = imprime_tempo(&inicio, &fim);
-    tempo_arquivo(arq, gi);
+    double total = p_time + rf_time;
+    printf("Total = %.10f\n", total);
+    tempo_arquivo(arq, total);
     printf("---------------------------------------------\n");
 
     printf("\n---------------------------------------------\n");

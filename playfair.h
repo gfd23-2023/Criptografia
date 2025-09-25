@@ -11,14 +11,16 @@ struct texto_t{
 };
 
 struct playfair_t {
-    char matriz[5][5];              //matriz que será preenchida
-    char *chave;                    //chave que preenche a matriz (não repete letras)
-    char *chave_recebida;           //registro da chave passada pelo usuário
-    char *texto_cifrado;            //sugestivo
-    char *texto_decifrado;          //sugestivo também
-    unsigned int tamanho_chave;     //tamanho da chave para facilitar as contas
-    char linha;                     //linha alvo para codificação/decodifucação
-    char coluna;                    //coluna alvo para codificação/decodificação
+    char matriz[5][5];               //matriz que será preenchida
+    char *chave;                     //chave que preenche a matriz (não repete letras)
+    char *chave_recebida;            //registro da chave passada pelo usuário
+    char *texto_cifrado;             //sugestivo
+    char *texto_decifrado;           //sugestivo também
+    unsigned int tamanho_chave;      //tamanho da chave para facilitar as contas
+    char linha;                      //linha alvo para codificação/decodifucação
+    char coluna;                     //coluna alvo para codificação/decodificação
+    unsigned long int num_caracteres;//número final de caracteres (utilizado em decifra)
+    long int tamanho_arquivo;        //tamanho do arquivo original
 };
 
 struct alfabeto_t {
@@ -48,6 +50,10 @@ void cifra(struct texto_t *texto, struct playfair_t *playfair);
 void decifra(struct playfair_t *playfair, char *arquivo_cifrado);
 
 void libera_texto(struct texto_t *texto);
+
+void grava_texto_cifrado(struct playfair_t *p);
+
+void grava_texto_decifrado(struct playfair_t *p);
 
 void libera_playfair(struct playfair_t *playfair);
 
